@@ -130,7 +130,27 @@ let currentView='board',currentProject='all',searchTerm='',filterMode=false,sort
 let saveTimer=null;
 const SHARED_ID=1;
 let applyingRemote=false;
-async function persist(){if(applyingRemote)return;clearTimeout(saveTimer);saveTimer=setTimeout(async()=>{try{const {data:{user}}=await sb.auth.getUser();if(!user) return;const {error}=await sb.from('flowtask_shared_state').upsert({id:SHARED_ID,projects:data.projects,tasks:data.tasks,settings:data.settings,updated_at:new Date().toISOString()},{onConflict:'id'});if(error) throw error;toast('Für alle gespeichert')}catch(e){console.error(e);toast('Speichern fehlgeschlagen')}} ,350)}
+let localChangeVersion=0;
+let lastServerUpdate='';
+async function writeSharedState(showToast=true){
+  const {data:{user}}=await sb.auth.getUser();
+  if(!user) return false;
+  const version=++localChangeVersion;
+  const payload={id:SHARED_ID,projects:data.projects,tasks:data.tasks,settings:data.settings,updated_at:new Date().toISOString()};
+  const {data:written,error}=await sb.from('flowtask_shared_state').upsert(payload,{onConflict:'id'}).select('updated_at').single();
+  if(error) throw error;
+  lastServerUpdate=written?.updated_at||payload.updated_at;
+  if(showToast) toast('Für alle gespeichert');
+  return version;
+}
+function persist(){
+  if(applyingRemote)return;
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(async()=>{try{await writeSharedState(true)}catch(e){console.error(e);toast('Speichern fehlgeschlagen')}} ,250);
+}
+async function persistAndRender(){
+  try{await writeSharedState(true);render()}catch(e){console.error(e);toast('Speichern fehlgeschlagen')}
+}
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function toast(msg){$('toast').textContent=msg;$('toast').classList.add('show');setTimeout(()=>$('toast').classList.remove('show'),2200)}
@@ -147,16 +167,16 @@ function renderDashboard(){let total=data.tasks.length,done=data.tasks.filter(t=
 function render(){renderSidebar();let list=filteredTasks();$('pageTitle').textContent=({board:currentProject==='all'?'Projektboard':project(currentProject).name,list:'Alle Aufgaben',calendar:'Kalender',dashboard:'Übersicht'})[currentView]||'Projektboard';$('pageSub').textContent=({board:'Plane deine Arbeit. Behalte den Überblick.',list:`${list.length} Aufgaben in deiner Auswahl`,calendar:'Termine und Fristen im Monatsüberblick.',dashboard:'Der aktuelle Stand deiner Projekte auf einen Blick.'})[currentView];$('projectTabs').style.display=['board','list'].includes(currentView)?'flex':'none';$('statsArea').innerHTML=currentView==='dashboard'?'':currentView==='board'?`<div class="sub" style="margin:-8px 0 16px">${list.length} Aufgaben · ${list.filter(t=>t.status!=='finish').length} offen</div>`:'';$('viewArea').innerHTML=currentView==='board'?renderBoard(list):currentView==='list'?renderList(list):currentView==='calendar'?renderCalendar(list):renderDashboard();document.querySelectorAll('#mainNav button[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===currentView));}
 function openTask(id='',status='incoming'){let t=data.tasks.find(x=>x.id===id);$('taskForm').reset();$('taskId').value=t?.id||'';$('taskModalTitle').textContent=t?'Aufgabe bearbeiten':'Neue Aufgabe';$('deleteTaskBtn').style.display=t?'inline-block':'none';$('titleInput').value=t?.title||'';$('descInput').value=t?.desc||'';$('projectInput').value=t?.project??data.projects[0]?.id??'';$('statusInput').value=t?.status||status;$('priorityInput').value=t?.priority||'medium';$('dueInput').value=t?.due||'';$('assigneeInput').value=t?.assignee||'';$('recipientNameInput').value=t?.recipient_name||'';$('recipientEmailInput').value=t?.recipient_email||'';$('tagsInput').value=(t?.tags||[]).join(', ');$('checklistInput').value=(t?.checklist||[]).map(c=>c.text).join('\n');$('taskOverlay').classList.add('open');$('titleInput').focus()}
 function closeModal(id){$(id).classList.remove('open')}
-$('taskForm').addEventListener('submit',e=>{e.preventDefault();let id=$('taskId').value,old=data.tasks.find(t=>t.id===id);let task={id:id||uid(),title:$('titleInput').value.trim(),desc:$('descInput').value.trim(),project:$('projectInput').value,status:$('statusInput').value,priority:$('priorityInput').value,due:$('dueInput').value,assignee:$('assigneeInput').value.trim(),recipient_name:$('recipientNameInput').value.trim(),recipient_email:$('recipientEmailInput').value.trim(),tags:$('tagsInput').value.split(',').map(x=>x.trim()).filter(Boolean),checklist:$('checklistInput').value.split('\n').map(x=>x.trim()).filter(Boolean).map((text,i)=>({text,done:old?.checklist?.find(c=>c.text===text)?.done||false})),created:old?.created||Date.now()};if(old)data.tasks[data.tasks.findIndex(t=>t.id===id)]=task;else data.tasks.push(task);persist();if(!old||old.status!==task.status) triggerStatusEmail(task);closeModal('taskOverlay');render();toast(old?'Aufgabe aktualisiert':'Aufgabe erstellt')});
-$('deleteTaskBtn').onclick=()=>{let id=$('taskId').value;if(id&&confirm('Diese Aufgabe wirklich löschen?')){data.tasks=data.tasks.filter(t=>t.id!==id);persist();closeModal('taskOverlay');render();toast('Aufgabe gelöscht')}};
-$('projectForm').addEventListener('submit',e=>{e.preventDefault();let name=$('projectName').value.trim();if(!name)return;let p={id:uid(),name,color:$('projectColor').value};data.projects.push(p);currentProject=p.id;persist();closeModal('projectOverlay');$('projectForm').reset();render();toast('Projekt erstellt')});
+$('taskForm').addEventListener('submit',async e=>{e.preventDefault();let id=$('taskId').value,old=data.tasks.find(t=>t.id===id);let task={id:id||uid(),title:$('titleInput').value.trim(),desc:$('descInput').value.trim(),project:$('projectInput').value,status:$('statusInput').value,priority:$('priorityInput').value,due:$('dueInput').value,assignee:$('assigneeInput').value.trim(),recipient_name:$('recipientNameInput').value.trim(),recipient_email:$('recipientEmailInput').value.trim(),tags:$('tagsInput').value.split(',').map(x=>x.trim()).filter(Boolean),checklist:$('checklistInput').value.split('\n').map(x=>x.trim()).filter(Boolean).map((text,i)=>({text,done:old?.checklist?.find(c=>c.text===text)?.done||false})),created:old?.created||Date.now()};if(old)data.tasks[data.tasks.findIndex(t=>t.id===id)]=task;else data.tasks.push(task);await persistAndRender();if(!old||old.status!==task.status) triggerStatusEmail(task);closeModal('taskOverlay');toast(old?'Aufgabe aktualisiert':'Aufgabe erstellt')});
+$('deleteTaskBtn').onclick=async()=>{let id=$('taskId').value;if(id&&confirm('Diese Aufgabe wirklich löschen?')){data.tasks=data.tasks.filter(t=>t.id!==id);await persistAndRender();closeModal('taskOverlay');toast('Aufgabe gelöscht')}};
+$('projectForm').addEventListener('submit',async e=>{e.preventDefault();let name=$('projectName').value.trim();if(!name)return;let p={id:uid(),name,color:$('projectColor').value};data.projects.push(p);currentProject=p.id;await persistAndRender();closeModal('projectOverlay');$('projectForm').reset();render();toast('Projekt erstellt')});
 $('mainNav').addEventListener('click',e=>{let b=e.target.closest('[data-view]');if(b){currentView=b.dataset.view;currentProject='all';render()}});
 $('projectTabs').addEventListener('click',e=>{let b=e.target.closest('[data-project]');if(b){currentProject=b.dataset.project;render()}});
 $('projectNav').addEventListener('click',e=>{let b=e.target.closest('[data-remove-project]');if(b){let p=project(b.dataset.removeProject);if(confirm(`Projekt „${p.name}“ löschen? Aufgaben bleiben erhalten und werden keinem Projekt zugeordnet.`)){data.tasks.forEach(t=>{if(t.project===p.id)t.project=''});data.projects=data.projects.filter(x=>x.id!==p.id);if(currentProject===p.id)currentProject='all';persist();render()}}else{let row=e.target.closest('.project-item');if(row){let name=row.querySelector('span:nth-child(2)').textContent;let p=data.projects.find(x=>x.name===name);if(p){currentProject=p.id;currentView='board';render()}}}});
-$('viewArea').addEventListener('click',e=>{let add=e.target.closest('[data-add-status]');if(add){openTask('',add.dataset.addStatus);return}let chk=e.target.closest('[data-complete]');if(chk){let t=data.tasks.find(x=>x.id===chk.dataset.complete);if(t){t.status=chk.checked?'finish':'incoming';persist();render()}return}let el=e.target.closest('[data-task]');if(el){openTask(el.dataset.task)}});
+$('viewArea').addEventListener('click',e=>{let add=e.target.closest('[data-add-status]');if(add){openTask('',add.dataset.addStatus);return}let chk=e.target.closest('[data-complete]');if(chk){let t=data.tasks.find(x=>x.id===chk.dataset.complete);if(t){t.status=chk.checked?'finish':'incoming';await persistAndRender()}return}let el=e.target.closest('[data-task]');if(el){openTask(el.dataset.task)}});
 $('viewArea').addEventListener('dragstart',e=>{let el=e.target.closest('[data-task]');if(el){e.dataTransfer.setData('text/plain',el.dataset.task);e.dataTransfer.effectAllowed='move'}});
 $('viewArea').addEventListener('dragover',e=>{let col=e.target.closest('[data-drop]');if(col){e.preventDefault();e.dataTransfer.dropEffect='move'}});
-$('viewArea').addEventListener('drop',e=>{let col=e.target.closest('[data-drop]');if(!col)return;e.preventDefault();let t=data.tasks.find(x=>x.id===e.dataTransfer.getData('text/plain'));if(t){let oldStatus=t.status;t.status=col.dataset.drop;persist();if(oldStatus!==t.status) triggerStatusEmail(t);render()}});
+$('viewArea').addEventListener('drop',e=>{let col=e.target.closest('[data-drop]');if(!col)return;e.preventDefault();let t=data.tasks.find(x=>x.id===e.dataTransfer.getData('text/plain'));if(t){let oldStatus=t.status;t.status=col.dataset.drop;await persistAndRender();if(oldStatus!==t.status) triggerStatusEmail(t)}});
 $('newTaskBtn').onclick=$('headingAdd').onclick=$('mobileAdd').onclick=()=>openTask();
 $('addProject').onclick=()=>$('projectOverlay').classList.add('open');
 $('filterBtn').onclick=()=>{filterMode=!filterMode;$('filterBtn').textContent=filterMode?'☷ Filter: wichtig':'☷ Filter';render()};
@@ -181,15 +201,34 @@ async function loadCloudState(user){
     if(ins.error) throw ins.error; data=initial;
   }else data={projects:row.projects||[],tasks:row.tasks||[],settings:row.settings||{defaultView:'board',workspaceName:'Flowtask Team'}};
   Object.entries(data.settings?.statusColors||{}).forEach(([id,color])=>{let s=statuses.find(x=>x.id===id);if(s)s.color=color});
+  lastServerUpdate=row?.updated_at||lastServerUpdate;
   normalizeStatuses();currentView=data.settings?.defaultView||'board';document.querySelector('.workspace div div').textContent=data.settings?.workspaceName||'Flowtask Team';render();
-  sb.channel('flowtask-shared').on('postgres_changes',{event:'UPDATE',schema:'public',table:'flowtask_shared_state',filter:'id=eq.1'},payload=>{
-    if(!payload.new) return;
+  sb.channel('flowtask-shared')
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'flowtask_shared_state',filter:'id=eq.1'},()=>refreshSharedState())
+    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'flowtask_shared_state',filter:'id=eq.1'},payload=>{
+      const incoming=payload.new?.updated_at||'';
+      if(!incoming || incoming===lastServerUpdate)return;
+      refreshSharedState();
+    })
+    .subscribe();
+}
+let refreshInProgress=false;
+async function refreshSharedState(){
+  if(refreshInProgress)return;
+  refreshInProgress=true;
+  try{
+    const {data:row,error}=await sb.from('flowtask_shared_state').select('projects,tasks,settings,updated_at').eq('id',SHARED_ID).single();
+    if(error)throw error;
+    if(row.updated_at && lastServerUpdate && new Date(row.updated_at).getTime()<=new Date(lastServerUpdate).getTime())return;
     applyingRemote=true;
-    data={projects:payload.new.projects||[],tasks:payload.new.tasks||[],settings:payload.new.settings||{defaultView:'board',workspaceName:'Flowtask Team'}};
-    Object.entries(data.settings?.statusColors||{}).forEach(([id,color])=>{let s=statuses.find(x=>x.id===id);if(s)s.color=color});
-    normalizeStatuses();document.querySelector('.workspace div div').textContent=data.settings?.workspaceName||'Flowtask Team';render();
-    applyingRemote=false;
-  }).subscribe();
+    data={projects:row.projects||[],tasks:row.tasks||[],settings:row.settings||{defaultView:'board',workspaceName:'Flowtask Team'}};
+    lastServerUpdate=row.updated_at||lastServerUpdate;
+    Object.entries(data.settings?.statusColors||{}).forEach(([id,color])=>{let st=statuses.find(x=>x.id===id);if(st)st.color=color});
+    normalizeStatuses();
+    document.querySelector('.workspace div div').textContent=data.settings?.workspaceName||'Flowtask Team';
+    render();
+  }catch(e){console.error('Gemeinsame Daten konnten nicht aktualisiert werden',e)}
+  finally{applyingRemote=false;refreshInProgress=false}
 }
 async function showApp(user){$('accountEmail').textContent=user.email;$('authScreen').style.display='none';$('app').style.display='grid';await loadCloudState(user);await claimFirstAdmin();await loadAdmin();idleMinutes=Number(data.settings?.idleMinutes||10);resetIdleTimer()}
 async function boot(){try{const {data:{session},error}=await sb.auth.getSession();if(error)throw error;if(session) await showApp(session.user);else {$('authScreen').style.display='grid';$('app').style.display='none'}}catch(e){console.error(e);$('authError').textContent='Cloud-Datenbank nicht erreichbar. Prüfe config.js und die Supabase-Einstellungen.';$('authError').classList.add('show')}}
