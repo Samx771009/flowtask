@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flowtask – Aufgabenmanagement</title>
+<style>
+:root{--bg:#f6f7fb;--panel:#fff;--text:#202432;--muted:#72798a;--line:#e6e8ef;--accent:#6558e8;--accent2:#eeeaff;--shadow:0 8px 28px #2222;--green:#168b68}
+*{box-sizing:border-box}body{margin:0;font:14px/1.45 Inter,system-ui,-apple-system,Segoe UI,sans-serif;color:var(--text);background:var(--bg)}button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;background:none;color:inherit}button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.app{display:grid;grid-template-columns:250px 1fr;min-height:100vh}.sidebar{background:#fff;border-right:1px solid var(--line);padding:22px 14px;display:flex;flex-direction:column;gap:20px}.brand{font-size:21px;font-weight:800;letter-spacing:-.8px;padding:0 10px}.brand span{color:var(--accent)}.workspace{margin:0 7px;padding:11px;border:1px solid var(--line);border-radius:10px;display:flex;align-items:center;gap:10px;font-weight:650}.avatar{width:30px;height:30px;border-radius:9px;background:#e4e0ff;color:#5143c6;display:grid;place-items:center;font-weight:800}.nav{display:grid;gap:4px}.nav button{display:flex;align-items:center;gap:11px;text-align:left;padding:10px 12px;border-radius:8px;color:#62697a}.nav button.active,.nav button:hover{background:var(--accent2);color:var(--accent);font-weight:650}.nav .count{margin-left:auto;font-size:12px}.section-label{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#9aa0ae;padding:8px 12px 2px}.project-item{display:flex;align-items:center;gap:9px;padding:8px 12px;color:#646b7b;border-radius:8px}.dot{width:9px;height:9px;border-radius:3px;background:#e5a14b;flex-shrink:0}.project-item button{margin-left:auto;color:#aaa}.side-bottom{margin-top:auto;display:grid;gap:5px}.main{min-width:0}.topbar{height:70px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px;padding:0 28px;background:#fff}.search{max-width:470px;flex:1;position:relative}.search input{width:100%;padding:10px 12px 10px 36px;border:1px solid var(--line);border-radius:9px;background:#fafbfe}.search span{position:absolute;left:12px;top:9px;color:#8a90a0}.top-actions{margin-left:auto;display:flex;gap:8px;align-items:center}.btn{border:1px solid var(--line);border-radius:8px;padding:9px 13px;background:#fff;font-weight:600}.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}.btn.small{padding:6px 9px;font-size:12px}.content{padding:28px;max-width:1600px;margin:auto}.heading{display:flex;align-items:flex-start;gap:16px;margin-bottom:23px}.heading h1{font-size:27px;letter-spacing:-.8px;margin:0 0 5px}.sub{color:var(--muted)}.heading-actions{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}.tabs{display:flex;gap:5px;border-bottom:1px solid var(--line);margin-bottom:20px;overflow:auto}.tabs button{padding:12px 14px;color:var(--muted);white-space:nowrap;border-bottom:2px solid transparent}.tabs button.active{color:var(--accent);border-color:var(--accent);font-weight:700}.board{display:grid;grid-template-columns:repeat(9,minmax(230px,1fr));gap:15px;align-items:start;overflow-x:auto;padding-bottom:20px;min-width:max-content}.column{background:var(--column-bg,#eef0f6);border-radius:12px;padding:12px;min-height:300px;border-top:7px solid var(--column-color,#aaa);transition:.15s}.column .task-list{background:var(--column-tint,#f7f8fb);border-radius:9px;padding:7px;min-height:160px}.column .add-task{background:color-mix(in srgb,var(--column-color,#aaa) 9%, transparent)}.col-head{display:flex;align-items:center;gap:8px;font-weight:750;padding:4px 4px 13px}.col-head .n{color:#9298a7;font-weight:500}.col-head button{margin-left:auto;color:#8a90a0}.task-list{display:grid;gap:9px;min-height:80px}.task{background:#fff;border:1px solid #e8eaf0;border-radius:10px;padding:13px;box-shadow:0 2px 3px #20243205;cursor:grab}.task:hover{border-color:#cbc6ff;box-shadow:0 5px 15px #3b2da00c}.task-title{font-weight:650;line-height:1.4;margin-bottom:9px;overflow-wrap:anywhere}.task-desc{font-size:12px;color:var(--muted);margin:-3px 0 10px;white-space:pre-wrap}.tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}.tag{font-size:11px;padding:3px 7px;border-radius:5px;background:#f1efff;color:#5d50ce}.tag.red{background:#fff0ef;color:#c34b48}.tag.green{background:#e7f8f0;color:#16805f}.task-meta{display:flex;align-items:center;gap:9px;font-size:11px;color:#8b91a0}.task-meta .due{margin-left:auto}.overdue{color:#d34d4d!important}.add-task{width:100%;text-align:left;padding:9px 5px;color:#7b8191;border-radius:7px;margin-top:8px}.add-task:hover{background:#e3e5ee;color:var(--accent)}.empty{padding:25px;text-align:center;color:var(--muted);background:#fff;border:1px dashed var(--line);border-radius:12px}.list-view{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:auto}.list-row{display:grid;grid-template-columns:minmax(180px,2fr) 1fr 1fr 1fr 80px;gap:12px;align-items:center;padding:13px 16px;border-bottom:1px solid var(--line)}.list-row:last-child{border:0}.list-row.header{font-size:11px;color:var(--muted);text-transform:uppercase;background:#fafbfe}.task-name-cell{display:flex;align-items:center;gap:9px;font-weight:650}.check{accent-color:var(--accent)}.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:7px}.day{background:#fff;border:1px solid var(--line);border-radius:9px;min-height:105px;padding:8px}.day .date{font-size:12px;color:var(--muted)}.cal-task{font-size:11px;background:var(--accent2);color:#5143c6;padding:4px 5px;border-radius:4px;margin-top:5px;overflow-wrap:anywhere}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px}.stat{background:#fff;border:1px solid var(--line);border-radius:12px;padding:17px}.stat .value{font-size:28px;font-weight:800;margin:4px 0}.progress{height:6px;border-radius:10px;background:#eeeef5;overflow:hidden;margin-top:10px}.progress div{height:100%;background:var(--accent);border-radius:10px}.overlay{position:fixed;inset:0;background:#15182766;display:none;align-items:center;justify-content:center;padding:18px;z-index:10}.overlay.open{display:flex}.modal{background:#fff;width:min(560px,100%);max-height:90vh;overflow:auto;border-radius:15px;box-shadow:var(--shadow);padding:22px}.modal-head{display:flex;align-items:center;margin-bottom:17px}.modal-head h2{font-size:20px;margin:0}.modal-head button{margin-left:auto;font-size:22px;color:var(--muted)}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}.field{display:grid;gap:6px;margin-bottom:13px}.field.full{grid-column:1/-1}.field label{font-size:12px;font-weight:700;color:#656b7b}.field input,.field textarea,.field select{width:100%;padding:10px 11px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--text)}.field textarea{min-height:90px;resize:vertical}.modal-foot{display:flex;justify-content:space-between;gap:8px;margin-top:8px}.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#242637;color:#fff;padding:10px 16px;border-radius:9px;display:none;z-index:30}.toast.show{display:block}.mobile-menu{display:none}.auth-screen{position:fixed;inset:0;background:var(--bg);display:grid;place-items:center;padding:20px;z-index:100}.auth-card{width:min(430px,100%);background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:28px}.auth-card h1{margin:0 0 6px;font-size:28px}.auth-card .brand{padding:0;margin-bottom:18px}.auth-tabs{display:flex;border-bottom:1px solid var(--line);margin:18px 0}.auth-tabs button{flex:1;padding:11px;border-bottom:2px solid transparent;color:var(--muted)}.auth-tabs button.active{color:var(--accent);border-color:var(--accent);font-weight:700}.auth-error{display:none;background:#fff0ef;color:#b83e3b;border-radius:8px;padding:10px;margin-bottom:13px}.auth-error.show{display:block}.auth-screen .field{margin-bottom:14px}.auth-screen .btn{width:100%;padding:11px}.account-box{padding:9px 12px;color:#656b7b;font-size:12px;border-top:1px solid var(--line);margin-top:5px}.account-box b{display:block;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.logout{color:#c44!important}
+@media(max-width:1000px){.app{grid-template-columns:215px 1fr}.board{grid-template-columns:repeat(9,240px)}.content{padding:22px 18px}.topbar{padding:0 18px}.list-row{grid-template-columns:minmax(160px,2fr) 1fr 1fr 70px}.list-row>*:nth-child(4){display:none}}
+@media (max-width:1100px){
+  .app{grid-template-columns:215px 1fr}
+  .board{grid-template-columns:repeat(9,240px);min-width:max-content}
+  .content{padding:22px 18px}
+  .topbar{padding:0 18px}
+}
+@media (max-width:700px), (hover:none) and (pointer:coarse) and (max-width:900px){
+  .app{grid-template-columns:1fr}
+  .sidebar{display:none}
+  .topbar{height:60px;padding:0 12px;position:sticky;top:0;z-index:5}
+  .content{padding:16px 10px 28px}
+  .heading{flex-wrap:wrap;gap:10px;margin-bottom:16px}
+  .heading h1{font-size:23px}
+  .heading-actions{margin-left:0;width:100%}
+  .heading-actions .btn{flex:1;min-height:44px}
+  .board{display:flex;flex-direction:column;gap:12px;min-width:0;overflow:visible;padding-bottom:10px;width:100%}
+  .column{width:100%;min-height:160px;padding:10px;border-top-width:6px}
+  .column .task-list{min-height:70px;padding:6px}
+  .task{padding:14px;touch-action:manipulation}
+  .task-list{gap:8px}
+  .col-head{min-height:42px;padding:4px 4px 9px}
+  .col-head button,.add-task{min-height:42px}
+  .add-task{padding:10px 8px}
+  .stats{grid-template-columns:1fr}
+  .search{max-width:none;min-width:0}
+  .top-actions .hide-mobile{display:none}
+  .top-actions{gap:5px}
+  .top-actions .btn{min-width:42px;min-height:42px;padding:8px}
+  .calendar{grid-template-columns:repeat(7,minmax(110px,1fr));overflow:auto}
+  .form-grid{grid-template-columns:1fr}
+  .field.full{grid-column:auto}
+  .field input,.field textarea,.field select{min-height:44px;font-size:16px}
+  .list-row{grid-template-columns:minmax(150px,2fr) 1fr 70px}
+  .list-row>*:nth-child(3),.list-row>*:nth-child(4){display:none}
+  .mobile-menu{display:inline-block;min-width:42px;min-height:42px}
+  .modal{width:100%;max-height:92vh;border-radius:18px 18px 0 0;padding:18px;margin-top:auto}
+  .overlay{align-items:flex-end;padding:0}
+  .auth-screen{padding:12px}
+  .auth-card{padding:22px 18px}
+}
+@media (min-width:701px) and (max-width:1100px){
+  .board{overflow-x:auto}
+}
+@media (min-width:1101px){
+  .device-mobile-only{display:none!important}
+}
+</style>
+</head>
+<body>
+<div class="auth-screen" id="authScreen">
+  <div class="auth-card">
+    <div class="brand">flow<span>task</span></div>
+    <h1 id="authTitle">Anmelden</h1>
+    <div style="color:var(--muted)">Aufgaben sicher speichern und von jedem Login aus weiterarbeiten.</div>
+    <div class="auth-tabs"><button id="loginTab" class="active">Anmelden</button><button id="registerTab">Registrieren</button></div>
+    <div class="auth-error" id="authError"></div>
+    <form id="authForm">
+      <div class="field"><label for="authEmail">E-Mail</label><input id="authEmail" type="email" autocomplete="email" required></div>
+      <div class="field"><label for="authPassword">Persönliches Passwort</label><input id="authPassword" type="password" autocomplete="current-password" minlength="8" required></div>
+      <div class="field"><label for="workspacePassword">Gemeinsames Flowtask-Passwort</label><input id="workspacePassword" type="password" autocomplete="off" minlength="4" required><div style="font-size:11px;color:var(--muted)">Dieses zusätzliche Passwort wird vom Admin für alle Benutzer festgelegt.</div></div>
+      <button class="btn primary" id="authSubmit" type="submit">Anmelden</button>
+    </form>
+    <div style="margin-top:14px;font-size:12px;color:var(--muted)">Mindestens 8 Zeichen. Passwörter werden serverseitig gehasht gespeichert.</div>
+  </div>
+</div>
+<div class="app" id="app" style="display:none">
+<aside class="sidebar">
+<div class="brand">flow<span>task</span></div>
+<div class="workspace"><div class="avatar">S</div><div><div>Mein Workspace</div><div style="font-size:11px;color:#9298a7;font-weight:400">Persönlicher Bereich</div></div><span style="margin-left:auto;color:#9298a7">⌄</span></div>
+<nav class="nav" id="mainNav">
+<button class="active" data-view="board">▦ <span>Projektboard</span></button>
+<button data-view="list">☷ <span>Alle Aufgaben</span><span class="count" id="allCount">0</span></button>
+<button data-view="calendar">▦ <span>Kalender</span></button>
+<button data-view="dashboard">◫ <span>Übersicht</span></button>
+</nav>
+<div><div class="section-label">Projekte <button id="addProject" style="float:right;font-size:17px">＋</button></div><div id="projectNav"></div></div>
+<div class="side-bottom nav">
+<button id="exportBtn">⇩ <span>Backup exportieren</span></button>
+<button id="importBtn">⇧ <span>Backup importieren</span></button>
+<button id="settingsBtn">⚙ <span>Einstellungen</span></button><button id="adminBtn" style="display:none">🛡 <span>Admin</span></button><button id="logoutBtn" class="logout">↪ <span>Abmelden</span></button>
+<div class="account-box">Angemeldet als:<b id="accountEmail">—</b><span>Gemeinsamer Bereich · Änderungen werden live für alle angezeigt</span></div>
+</div>
+<input type="file" id="importFile" accept="application/json" hidden>
+</aside>
+<main class="main">
+<header class="topbar">
+<button class="mobile-menu" id="mobileAdd" title="Aufgabe erstellen">＋</button>
+<div class="search"><span>⌕</span><input id="searchInput" placeholder="Suchen: Aufgaben, Tags …"></div>
+<div class="top-actions"><button class="btn hide-mobile" id="helpBtn">? Hilfe</button><button class="btn primary" id="newTaskBtn">＋ Neue Aufgabe</button><div class="avatar">S</div></div>
+</header>
+<div class="content">
+<div class="heading"><div><h1 id="pageTitle">Projektboard</h1><div class="sub" id="pageSub">Plane deine Arbeit. Behalte den Überblick.</div></div><div class="heading-actions"><button class="btn" id="filterBtn">☷ Filter</button><button class="btn" id="sortBtn">↕ Sortieren</button><button class="btn primary" id="headingAdd">＋ Aufgabe</button></div></div>
+<div id="statsArea"></div>
+<div class="tabs" id="projectTabs"><button class="active" data-project="all">Alle Projekte</button></div>
+<div id="viewArea"></div>
+</div>
+</main>
+</div>
+<div class="overlay" id="taskOverlay"><div class="modal">
+<div class="modal-head"><h2 id="taskModalTitle">Neue Aufgabe</h2><button data-close="taskOverlay">×</button></div>
+<form id="taskForm">
+<input type="hidden" id="taskId">
+<div class="field"><label for="titleInput">Aufgabentitel *</label><input id="titleInput" required maxlength="180" placeholder="Was muss erledigt werden?"></div>
+<div class="field"><label for="descInput">Beschreibung / Notizen</label><textarea id="descInput" placeholder="Details, Checkliste, Links …"></textarea></div>
+<div class="form-grid">
+<div class="field"><label for="projectInput">Projekt</label><select id="projectInput"></select></div>
+<div class="field"><label for="statusInput">Status</label><select id="statusInput"></select></div>
+<div class="field"><label for="priorityInput">Priorität</label><select id="priorityInput"><option value="low">Niedrig</option><option value="medium" selected>Mittel</option><option value="high">Hoch</option><option value="urgent">Dringend</option></select></div>
+<div class="field"><label for="dueInput">Fällig am</label><input id="dueInput" type="date"></div>
+<div class="field"><label for="assigneeInput">Zuständig</label><input id="assigneeInput" placeholder="Name"></div>
+<div class="field"><label for="recipientNameInput">Ansprechpartner / Empfänger</label><input id="recipientNameInput" placeholder="z. B. Max Mustermann"></div>
+<div class="field"><label for="recipientEmailInput">E-Mail des Empfängers</label><input id="recipientEmailInput" type="email" placeholder="kunde@example.de"></div>
+<div class="field"><label for="tagsInput">Tags (mit Komma trennen)</label><input id="tagsInput" placeholder="Schule, Wichtig"></div>
+<div class="field full"><label for="checklistInput">Checkliste (ein Punkt pro Zeile)</label><textarea id="checklistInput" placeholder="Recherche erledigen&#10;Ergebnis überprüfen"></textarea></div>
+</div>
+<div class="modal-foot"><button type="button" class="btn" id="deleteTaskBtn" style="color:#c44;display:none">Löschen</button><div style="margin-left:auto;display:flex;gap:8px"><button type="button" class="btn" data-close="taskOverlay">Abbrechen</button><button class="btn primary" type="submit">Speichern</button></div></div>
+</form>
+</div></div>
+<div class="overlay" id="projectOverlay"><div class="modal" style="width:min(420px,100%)"><div class="modal-head"><h2>Projekt erstellen</h2><button data-close="projectOverlay">×</button></div><form id="projectForm"><div class="field"><label for="projectName">Projektname *</label><input id="projectName" required maxlength="70" placeholder="z. B. Schulprojekt"></div><div class="field"><label for="projectColor">Farbe</label><select id="projectColor"><option value="#6558e8">Violett</option><option value="#2b9c82">Türkis</option><option value="#e5a14b">Orange</option><option value="#e45c77">Pink</option><option value="#4e8cda">Blau</option></select></div><div class="modal-foot"><span></span><button class="btn primary">Projekt erstellen</button></div></form></div></div>
+<div class="overlay" id="settingsOverlay"><div class="modal"><div class="modal-head"><h2>Einstellungen</h2><button data-close="settingsOverlay">×</button></div><p>Alle angemeldeten Benutzer teilen sich diesen Arbeitsbereich. Änderungen werden live für alle angezeigt. Nach 10 Minuten ohne Aktivität wird automatisch abgemeldet.</p><div class="field"><label>Ansicht beim Start</label><select id="defaultView"><option value="board">Projektboard</option><option value="list">Alle Aufgaben</option><option value="calendar">Kalender</option><option value="dashboard">Übersicht</option></select></div><div class="field"><label>Workspace-Name</label><input id="workspaceName" value="Mein Workspace"></div><div class="modal-foot"><button class="btn" id="clearDataBtn" style="color:#c44">Alle Daten löschen</button><button class="btn primary" id="saveSettingsBtn">Speichern</button></div></div></div>
+<div class="overlay" id="adminOverlay"><div class="modal" style="width:min(760px,100%)">
+<div class="modal-head"><h2>🛡 Admin-Bereich</h2><button data-close="adminOverlay">×</button></div>
+<div id="adminStatus" class="sub" style="margin-bottom:15px"></div>
+<div class="form-grid">
+<div class="field full"><label>Gemeinsames Login-Passwort</label><input id="sharedPasswordNew" type="password" minlength="4" placeholder="Neues Passwort für alle Benutzer"></div>
+<div class="field"><label>Automatisch abmelden nach (Minuten)</label><input id="idleMinutes" type="number" min="1" max="1440" value="10"></div>
+<div class="field"><label>Absendername für automatische E-Mails</label><input id="mailSenderName" placeholder="Flowtask"></div>
+</div>
+<div style="display:flex;gap:8px;justify-content:flex-end;margin:8px 0 20px"><button class="btn primary" id="saveAdminGeneral">Allgemeine Einstellungen speichern</button></div>
+<h3>Automatische E-Mails nach Station</h3>
+<div class="sub" style="margin-bottom:10px">Wenn eine Aufgabe in eine aktivierte Station verschoben wird, kann automatisch eine Mail an die E-Mail-Adresse der Aufgabe gesendet werden.</div>
+<div id="mailRulesArea"></div>
+<div style="display:flex;justify-content:flex-end;gap:8px;margin-top:15px"><button class="btn" data-close="adminOverlay">Schließen</button><button class="btn primary" id="saveMailRules">E-Mail-Regeln speichern</button></div>
+</div></div>
+<div class="overlay" id="helpOverlay"><div class="modal"><div class="modal-head"><h2>Flowtask – Kurzhilfe</h2><button data-close="helpOverlay">×</button></div><p><b>Aufgaben erstellen:</b> „Neue Aufgabe“ anklicken und Titel, Status, Priorität oder Fälligkeitsdatum eintragen.</p><p><b>Board:</b> Aufgaben per Drag & Drop zwischen den Status-Spalten verschieben. Auf eine Karte klicken, um sie zu bearbeiten.</p><p><b>Filtern und suchen:</b> Suche, Projekt-Tabs und Filter helfen dir, Aufgaben zu finden.</p><p><b>Backup:</b> Über „Backup exportieren“ kannst du deine Daten als JSON-Datei sichern und später wieder importieren.</p><p style="color:#777">Hinweis: Flowtask nutzt Supabase für Benutzerkonten und Cloud-Speicherung. Alle angemeldeten Benutzer teilen sich diesen Arbeitsbereich und sehen Änderungen live.</p></div></div>
+<div class="toast" id="toast"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script>
+// Flowtask syntax-fix build 2026-10-02
+const { createClient } = supabase;
+const sb = createClient(FLOWTASK_SUPABASE_URL, FLOWTASK_SUPABASE_ANON_KEY);
+const statuses=[{id:'incoming',name:'Eingehende Aufträge',color:'#8b91a0'},{id:'appointment',name:'Termin wurde vereinbart',color:'#e5a14b'},{id:'sampled',name:'Bodenprobe entnommen',color:'#7b6ce0'},{id:'drying',name:'Im Trockenschrank',color:'#4e8cda'},{id:'prep',name:'Probenaufbereitung',color:'#2b9c82'},{id:'measure',name:'Probe kann gemessen',color:'#d28a42'},{id:'feedback',name:'Rückmeldung kann erfolgen',color:'#9a75d5'},{id:'finish',name:'Auftrag beenden',color:'#279b78'},{id:'waiting',name:'Kommt noch was? (Länger keine Rückmeldung)',color:'#d85b68'}];
+const oldStatusMap={todo:'incoming',progress:'sampled',review:'measure',done:'finish'};
+const defaultMailRules=()=>statuses.map(s=>({status_id:s.id,enabled:false,recipient_source:'task',fixed_email:'',subject:`Flowtask: ${s.name}`,body:`Hallo {{recipient_name}},\n\nDer Auftrag „{{title}}“ befindet sich jetzt in der Station „${s.name}“.\n\nViele Grüße\nFlowtask`}));
+let mailRules=[]; let isAdmin=false; let idleTimer=null; let idleMinutes=10;
+function hexTint(hex,alpha=0.10){let h=(hex||'#aaa').replace('#','');if(h.length!==6)return 'rgba(170,170,170,'+alpha+')';let r=parseInt(h.slice(0,2),16),g=parseInt(h.slice(2,4),16),b=parseInt(h.slice(4,6),16);return `rgba(${r},${g},${b},${alpha})`}
+function resetIdleTimer(){clearTimeout(idleTimer);if(!$('app')||$('app').style.display==='none')return;idleTimer=setTimeout(async()=>{await sb.auth.signOut();location.reload()},idleMinutes*60*1000)}
+['mousemove','mousedown','keydown','touchstart','scroll'].forEach(ev=>document.addEventListener(ev,resetIdleTimer,{passive:true}));
+async function verifyWorkspacePassword(p){const {data,error}=await sb.rpc('verify_flowtask_password',{p_password:p});if(error)throw error;return !!data}
+async function loadAdmin(){try{const {data,error}=await sb.rpc('is_flowtask_admin');if(error)throw error;isAdmin=!!data;$('adminBtn').style.display=isAdmin?'flex':'none';}catch(e){console.warn('Adminstatus nicht verfügbar',e);isAdmin=false}}
+async function claimFirstAdmin(){const {data,error}=await sb.rpc('claim_first_flowtask_admin');if(!error&&data){isAdmin=true;$('adminBtn').style.display='flex'}}
+async function loadMailRules(){const {data,error}=await sb.from('flowtask_mail_rules').select('*').order('status_id');if(error)throw error;mailRules=(data&&data.length?data:defaultMailRules())}
+function renderMailRules(){if(!$('mailRulesArea'))return;$('mailRulesArea').innerHTML=mailRules.map((r,i)=>{let s=statuses.find(x=>x.id===r.status_id)||statuses[0];return `<div class="mail-rule" data-rule="${i}" style="border:1px solid var(--line);border-left:7px solid ${s.color};padding:12px;border-radius:10px;margin:8px 0;background:${hexTint(s.color,.05)}"><div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><b style="flex:1">${esc(s.name)}</b><label style="font-size:12px">Spaltenfarbe <input type="color" data-mail-color value="${s.color}"></label><label style="font-size:12px"><input type="checkbox" data-mail-enabled ${r.enabled?'checked':''}> Automatisch senden</label></div><div class="form-grid"><div class="field"><label>Empfänger</label><select data-mail-source><option value="task" ${r.recipient_source==='task'?'selected':''}>E-Mail aus Aufgabe</option><option value="fixed" ${r.recipient_source==='fixed'?'selected':''}>Feste E-Mail</option></select></div><div class="field"><label>Feste E-Mail</label><input data-mail-fixed value="${esc(r.fixed_email||'')}" placeholder="nur bei fester E-Mail"></div><div class="field full"><label>Betreff</label><input data-mail-subject value="${esc(r.subject||'')}"></div><div class="field full"><label>Text</label><textarea data-mail-body rows="4">${esc(r.body||'')}</textarea><div style="font-size:11px;color:var(--muted)">Platzhalter: {{recipient_name}}, {{title}}, {{status}}, {{due}}, {{assignee}}</div></div></div></div>`}).join('')}
+async function openAdmin(){if(!isAdmin)return;await loadMailRules();const {data:s}=await sb.from('flowtask_shared_state').select('settings').eq('id',SHARED_ID).single();let st=s?.settings||{};idleMinutes=Number(st.idleMinutes||10);$('idleMinutes').value=idleMinutes;$('mailSenderName').value=st.mailSenderName||'Flowtask';$('adminStatus').textContent='Du bist als Administrator angemeldet.';$('sharedPasswordNew').value='';renderMailRules();$('adminOverlay').classList.add('open')}
+async function saveAdminGeneral(){let pw=$('sharedPasswordNew').value.trim();if(pw){const {data,error}=await sb.rpc('set_flowtask_password',{p_password:pw});if(error)throw error}$('sharedPasswordNew').value='';idleMinutes=Math.max(1,Number($('idleMinutes').value||10));data.settings={...data.settings,idleMinutes,mailSenderName:$('mailSenderName').value.trim()||'Flowtask'};await persistNow();resetIdleTimer();toast(pw?'Gemeinsames Passwort und Einstellungen gespeichert':'Einstellungen gespeichert')}
+async function saveMailRules(){let rows=[...document.querySelectorAll('.mail-rule')];mailRules=rows.map((el,i)=>{let r=mailRules[i]||{};if(statuses[i])statuses[i].color=el.querySelector('[data-mail-color]').value;return {...r,status_id:statuses[i]?.id||r.status_id,enabled:el.querySelector('[data-mail-enabled]').checked,recipient_source:el.querySelector('[data-mail-source]').value,fixed_email:el.querySelector('[data-mail-fixed]').value.trim(),subject:el.querySelector('[data-mail-subject]').value,body:el.querySelector('[data-mail-body]').value}});data.settings={...data.settings,statusColors:Object.fromEntries(statuses.map(x=>[x.id,x.color]))};await persistNow();render();for(const r of mailRules){let {error}=await sb.from('flowtask_mail_rules').upsert(r,{onConflict:'status_id'});if(error)throw error}toast('E-Mail-Regeln gespeichert')}
+async function persistNow(){const {data:{user}}=await sb.auth.getUser();if(!user)return;const {error}=await sb.from('flowtask_shared_state').upsert({id:SHARED_ID,projects:data.projects,tasks:data.tasks,settings:data.settings,updated_at:new Date().toISOString()},{onConflict:'id'});if(error)throw error}
+async function triggerStatusEmail(task){try{await fetch(`${FLOWTASK_SUPABASE_URL}/functions/v1/send-status-email`,{method:'POST',headers:{Authorization:`Bearer ${(await sb.auth.getSession()).data.session?.access_token||''}`,'Content-Type':'application/json'},body:JSON.stringify({task})})}catch(e){console.warn('E-Mail-Funktion nicht erreichbar',e)}}
+
+function normalizeStatuses(){data.tasks.forEach(t=>{if(oldStatusMap[t.status])t.status=oldStatusMap[t.status]});}
+const uid=()=>Math.random().toString(36).slice(2,10);
+const dateOffset=n=>{let d=new Date();d.setDate(d.getDate()+n);return d.toISOString().slice(0,10)};
+let data={projects:[],tasks:[],settings:{defaultView:'board',workspaceName:'Mein Workspace'}};
+let currentView='board',currentProject='all',searchTerm='',filterMode=false,sortMode='due';
+let saveTimer=null;
+const SHARED_ID=1;
+let applyingRemote=false;
+let localChangeVersion=0;
+let lastServerUpdate='';
+async function writeSharedState(showToast=true){
+  const {data:{user}}=await sb.auth.getUser();
+  if(!user) return false;
+  const version=++localChangeVersion;
+  const payload={id:SHARED_ID,projects:data.projects,tasks:data.tasks,settings:data.settings,updated_at:new Date().toISOString()};
+  const {data:written,error}=await sb.from('flowtask_shared_state').upsert(payload,{onConflict:'id'}).select('updated_at').single();
+  if(error) throw error;
+  lastServerUpdate=written?.updated_at||payload.updated_at;
+  if(showToast) toast('Für alle gespeichert');
+  return version;
+}
+function persist(){
+  if(applyingRemote)return;
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(async()=>{try{await writeSharedState(true)}catch(e){console.error(e);toast('Speichern fehlgeschlagen')}} ,250);
+}
+async function persistAndRender(){
+  try{await writeSharedState(true);render()}catch(e){console.error(e);toast('Speichern fehlgeschlagen')}
+}
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function toast(msg){$('toast').textContent=msg;$('toast').classList.add('show');setTimeout(()=>$('toast').classList.remove('show'),2200)}
+function project(id){return data.projects.find(p=>p.id===id)||{name:'Ohne Projekt',color:'#aaa'}}
+function statusName(id){return statuses.find(s=>s.id===id)?.name||statuses[0].name}
+function priorityName(p){return ({low:'Niedrig',medium:'Mittel',high:'Hoch',urgent:'Dringend'})[p]||'Mittel'}
+function filteredTasks(){let list=data.tasks.filter(t=>(currentProject==='all'||t.project===currentProject)&&(!searchTerm||[t.title,t.desc,t.assignee,...(t.tags||[])].join(' ').toLowerCase().includes(searchTerm.toLowerCase())));if(filterMode)list=list.filter(t=>t.status!=='finish'&&(t.priority==='high'||t.priority==='urgent'));list.sort((a,b)=>sortMode==='priority'?({urgent:0,high:1,medium:2,low:3}[a.priority]-({urgent:0,high:1,medium:2,low:3}[b.priority])):sortMode==='created'?(b.created||0)-(a.created||0):(a.due||'9999').localeCompare(b.due||'9999'));return list}
+function renderSidebar(){$('projectNav').innerHTML=data.projects.map(p=>`<div class="project-item"><span class="dot" style="background:${esc(p.color)}"></span><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(p.name)}</span><button title="Projekt löschen" data-remove-project="${p.id}">⋯</button></div>`).join('');$('allCount').textContent=data.tasks.filter(t=>t.status!=='finish').length;$('projectInput').innerHTML=data.projects.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('')+'<option value="">Ohne Projekt</option>';$('statusInput').innerHTML=statuses.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('');$('projectTabs').innerHTML=`<button data-project="all" class="${currentProject==='all'?'active':''}">Alle Projekte</button>`+data.projects.map(p=>`<button data-project="${p.id}" class="${currentProject===p.id?'active':''}"><span style="color:${esc(p.color)}">●</span> ${esc(p.name)}</button>`).join('')}
+function taskCard(t){let due=t.due?new Date(t.due+'T12:00:00').toLocaleDateString('de-DE',{day:'2-digit',month:'short'}):'';let overdue=t.due&&t.due<dateOffset(0)&&t.status!=='finish';let p=project(t.project);let checklist=t.checklist||[];let checkDone=checklist.filter(c=>c.done).length;return `<article class="task" draggable="true" data-task="${t.id}"><div class="task-title">${esc(t.title)}</div>${t.desc?`<div class="task-desc">${esc(t.desc.slice(0,120))}${t.desc.length>120?'…':''}</div>`:''}<div class="tags">${t.priority==='urgent'||t.priority==='high'?`<span class="tag red">⚑ ${priorityName(t.priority)}</span>`:''}${(t.tags||[]).slice(0,3).map(tag=>`<span class="tag">${esc(tag)}</span>`).join('')}${checklist.length?`<span class="tag green">☑ ${checkDone}/${checklist.length}</span>`:''}</div><div class="task-meta">${t.assignee?`<span>◉ ${esc(t.assignee)}</span>`:''}${t.recipient_email?`<span>✉ ${esc(t.recipient_email)}</span>`:''}<span class="due ${overdue?'overdue':''}">${due?'◷ '+due:''}</span></div></article>`}
+function renderBoard(list){return `<div class="board">${statuses.map(s=>{let tasks=list.filter(t=>t.status===s.id);return `<section class="column" data-status="${s.id}" style="--column-color:${s.color};--column-bg:${hexTint(s.color,.16)};--column-tint:${hexTint(s.color,.055)}"><div class="col-head"><span class="dot" style="background:${s.color}"></span>${s.name}<span class="n">${tasks.length}</span><button title="Aufgabe hinzufügen" data-add-status="${s.id}">＋</button></div><div class="task-list" data-drop="${s.id}">${tasks.map(taskCard).join('')}</div><button class="add-task" data-add-status="${s.id}">＋ Aufgabe hinzufügen</button></section>`}).join('')}</div>`}
+function renderList(list){return `<div class="list-view"><div class="list-row header"><span>Aufgabe</span><span>Status</span><span>Priorität</span><span>Fällig</span><span>Projekt</span></div>${list.map(t=>`<div class="list-row"><div class="task-name-cell"><input class="check" type="checkbox" data-complete="${t.id}" ${t.status==='finish'?'checked':''}><button data-task="${t.id}" style="text-align:left;font-weight:650">${esc(t.title)}</button></div><span>${statusName(t.status)}</span><span>${priorityName(t.priority)}</span><span>${t.due?new Date(t.due+'T12:00:00').toLocaleDateString('de-DE'):'—'}</span><span>${esc(project(t.project).name)}</span></div>`).join('')||'<div class="empty">Keine Aufgaben gefunden.</div>'}</div>`}
+function renderCalendar(list){let now=new Date(),year=now.getFullYear(),month=now.getMonth(),first=new Date(year,month,1),days=new Date(year,month+1,0).getDate(),start=(first.getDay()+6)%7;let cells=[];for(let i=0;i<start;i++)cells.push('<div class="day" style="background:transparent;border:0"></div>');for(let d=1;d<=days;d++){let key=`${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;cells.push(`<div class="day"><div class="date">${d}${key===dateOffset(0)?' · Heute':''}</div>${list.filter(t=>t.due===key).map(t=>`<button class="cal-task" data-task="${t.id}">${esc(t.title)}</button>`).join('')}</div>`)}return `<h3>${now.toLocaleDateString('de-DE',{month:'long',year:'numeric'})}</h3><div class="calendar">${['Mo','Di','Mi','Do','Fr','Sa','So'].map(x=>`<div style="padding:5px;color:#777;font-size:12px">${x}</div>`).join('')}${cells.join('')}</div>`}
+function renderDashboard(){let total=data.tasks.length,done=data.tasks.filter(t=>t.status==='finish').length,open=data.tasks.filter(t=>t.status!=='finish').length,late=data.tasks.filter(t=>t.due&&t.due<dateOffset(0)&&t.status!=='finish').length,rate=total?Math.round(done/total*100):0;return `<div class="stats"><div class="stat"><div class="sub">Alle Aufgaben</div><div class="value">${total}</div><div class="sub">${open} noch offen</div></div><div class="stat"><div class="sub">Erledigt</div><div class="value">${done}</div><div class="progress"><div style="width:${rate}%"></div></div><div class="sub" style="margin-top:6px">${rate}% abgeschlossen</div></div><div class="stat"><div class="sub">Überfällig</div><div class="value" style="color:${late?'#c44':'inherit'}">${late}</div><div class="sub">Aufgaben mit überschrittenem Termin</div></div></div><h3>Aktuelle Aufgaben</h3>${renderList(filteredTasks())}<h3 style="margin-top:25px">Projekte</h3><div class="stats">${data.projects.map(p=>{let n=data.tasks.filter(t=>t.project===p.id).length,d=data.tasks.filter(t=>t.project===p.id&&t.status==='finish').length;return `<div class="stat"><div style="font-weight:750"><span class="dot" style="display:inline-block;background:${esc(p.color)}"></span> ${esc(p.name)}</div><div class="value">${n}</div><div class="sub">${d} erledigt</div><div class="progress"><div style="width:${n?d/n*100:0}%;background:${esc(p.color)}"></div></div></div>`}).join('')}</div>`}
+function render(){renderSidebar();let list=filteredTasks();$('pageTitle').textContent=({board:currentProject==='all'?'Projektboard':project(currentProject).name,list:'Alle Aufgaben',calendar:'Kalender',dashboard:'Übersicht'})[currentView]||'Projektboard';$('pageSub').textContent=({board:'Plane deine Arbeit. Behalte den Überblick.',list:`${list.length} Aufgaben in deiner Auswahl`,calendar:'Termine und Fristen im Monatsüberblick.',dashboard:'Der aktuelle Stand deiner Projekte auf einen Blick.'})[currentView];$('projectTabs').style.display=['board','list'].includes(currentView)?'flex':'none';$('statsArea').innerHTML=currentView==='dashboard'?'':currentView==='board'?`<div class="sub" style="margin:-8px 0 16px">${list.length} Aufgaben · ${list.filter(t=>t.status!=='finish').length} offen</div>`:'';$('viewArea').innerHTML=currentView==='board'?renderBoard(list):currentView==='list'?renderList(list):currentView==='calendar'?renderCalendar(list):renderDashboard();document.querySelectorAll('#mainNav button[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===currentView));}
+function openTask(id='',status='incoming'){let t=data.tasks.find(x=>x.id===id);$('taskForm').reset();$('taskId').value=t?.id||'';$('taskModalTitle').textContent=t?'Aufgabe bearbeiten':'Neue Aufgabe';$('deleteTaskBtn').style.display=t?'inline-block':'none';$('titleInput').value=t?.title||'';$('descInput').value=t?.desc||'';$('projectInput').value=t?.project??data.projects[0]?.id??'';$('statusInput').value=t?.status||status;$('priorityInput').value=t?.priority||'medium';$('dueInput').value=t?.due||'';$('assigneeInput').value=t?.assignee||'';$('recipientNameInput').value=t?.recipient_name||'';$('recipientEmailInput').value=t?.recipient_email||'';$('tagsInput').value=(t?.tags||[]).join(', ');$('checklistInput').value=(t?.checklist||[]).map(c=>c.text).join('\n');$('taskOverlay').classList.add('open');$('titleInput').focus()}
+function closeModal(id){$(id).classList.remove('open')}
+$('taskForm').addEventListener('submit',async e=>{e.preventDefault();let id=$('taskId').value,old=data.tasks.find(t=>t.id===id);let task={id:id||uid(),title:$('titleInput').value.trim(),desc:$('descInput').value.trim(),project:$('projectInput').value,status:$('statusInput').value,priority:$('priorityInput').value,due:$('dueInput').value,assignee:$('assigneeInput').value.trim(),recipient_name:$('recipientNameInput').value.trim(),recipient_email:$('recipientEmailInput').value.trim(),tags:$('tagsInput').value.split(',').map(x=>x.trim()).filter(Boolean),checklist:$('checklistInput').value.split('\n').map(x=>x.trim()).filter(Boolean).map((text,i)=>({text,done:old?.checklist?.find(c=>c.text===text)?.done||false})),created:old?.created||Date.now()};if(old)data.tasks[data.tasks.findIndex(t=>t.id===id)]=task;else data.tasks.push(task);await persistAndRender();if(!old||old.status!==task.status) triggerStatusEmail(task);closeModal('taskOverlay');toast(old?'Aufgabe aktualisiert':'Aufgabe erstellt')});
+$('deleteTaskBtn').onclick=async()=>{let id=$('taskId').value;if(id&&confirm('Diese Aufgabe wirklich löschen?')){data.tasks=data.tasks.filter(t=>t.id!==id);await persistAndRender();closeModal('taskOverlay');toast('Aufgabe gelöscht')}};
+$('projectForm').addEventListener('submit',async e=>{e.preventDefault();let name=$('projectName').value.trim();if(!name)return;let p={id:uid(),name,color:$('projectColor').value};data.projects.push(p);currentProject=p.id;await persistAndRender();closeModal('projectOverlay');$('projectForm').reset();render();toast('Projekt erstellt')});
+$('mainNav').addEventListener('click',e=>{let b=e.target.closest('[data-view]');if(b){currentView=b.dataset.view;currentProject='all';render()}});
+$('projectTabs').addEventListener('click',e=>{let b=e.target.closest('[data-project]');if(b){currentProject=b.dataset.project;render()}});
+$('projectNav').addEventListener('click',e=>{let b=e.target.closest('[data-remove-project]');if(b){let p=project(b.dataset.removeProject);if(confirm(`Projekt „${p.name}“ löschen? Aufgaben bleiben erhalten und werden keinem Projekt zugeordnet.`)){data.tasks.forEach(t=>{if(t.project===p.id)t.project=''});data.projects=data.projects.filter(x=>x.id!==p.id);if(currentProject===p.id)currentProject='all';persist();render()}}else{let row=e.target.closest('.project-item');if(row){let name=row.querySelector('span:nth-child(2)').textContent;let p=data.projects.find(x=>x.name===name);if(p){currentProject=p.id;currentView='board';render()}}}});
+$('viewArea').addEventListener('click',async e=>{let add=e.target.closest('[data-add-status]');if(add){openTask('',add.dataset.addStatus);return}let chk=e.target.closest('[data-complete]');if(chk){let t=data.tasks.find(x=>x.id===chk.dataset.complete);if(t){t.status=chk.checked?'finish':'incoming';try{await persistAndRender()}catch(err){console.error(err);toast('Speichern fehlgeschlagen')}}return}let el=e.target.closest('[data-task]');if(el){openTask(el.dataset.task)}});
+$('viewArea').addEventListener('dragstart',e=>{let el=e.target.closest('[data-task]');if(el){e.dataTransfer.setData('text/plain',el.dataset.task);e.dataTransfer.effectAllowed='move'}});
+$('viewArea').addEventListener('dragover',e=>{let col=e.target.closest('[data-drop]');if(col){e.preventDefault();e.dataTransfer.dropEffect='move'}});
+$('viewArea').addEventListener('drop',async e=>{let col=e.target.closest('[data-drop]');if(!col)return;e.preventDefault();let t=data.tasks.find(x=>x.id===e.dataTransfer.getData('text/plain'));if(t){let oldStatus=t.status;t.status=col.dataset.drop;try{await persistAndRender();if(oldStatus!==t.status) triggerStatusEmail(t)}catch(err){console.error(err);toast('Speichern fehlgeschlagen')}}});
+$('newTaskBtn').onclick=$('headingAdd').onclick=$('mobileAdd').onclick=()=>openTask();
+$('addProject').onclick=()=>$('projectOverlay').classList.add('open');
+$('filterBtn').onclick=()=>{filterMode=!filterMode;$('filterBtn').textContent=filterMode?'☷ Filter: wichtig':'☷ Filter';render()};
+$('sortBtn').onclick=()=>{sortMode=sortMode==='due'?'priority':sortMode==='priority'?'created':'due';$('sortBtn').textContent='↕ '+({due:'Fälligkeit',priority:'Priorität',created:'Neueste'})[sortMode];render()};
+$('searchInput').addEventListener('input',e=>{searchTerm=e.target.value;render()});
+$('exportBtn').onclick=()=>{let blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='flowtask-backup-'+dateOffset(0)+'.json';a.click();URL.revokeObjectURL(url);toast('Backup exportiert')};
+$('importBtn').onclick=()=>$('importFile').click();
+$('importFile').onchange=async e=>{let f=e.target.files[0];if(!f)return;try{let d=JSON.parse(await f.text());if(!Array.isArray(d.tasks)||!Array.isArray(d.projects))throw Error();if(confirm('Backup laden und aktuelle Daten ersetzen?')){data=d;persist();render();toast('Backup importiert')}}catch(err){alert('Die Datei ist kein gültiges Flowtask-Backup.')}e.target.value=''};
+$('settingsBtn').onclick=()=>{$('defaultView').value=data.settings?.defaultView||'board';$('workspaceName').value=data.settings?.workspaceName||'Mein Workspace';$('settingsOverlay').classList.add('open')};
+$('saveSettingsBtn').onclick=()=>{data.settings={...data.settings,defaultView:$('defaultView').value,workspaceName:$('workspaceName').value.trim()||'Mein Workspace'};document.querySelector('.workspace div div').textContent=data.settings.workspaceName;persist();closeModal('settingsOverlay');toast('Einstellungen gespeichert')};
+$('clearDataBtn').onclick=()=>{if(confirm('Wirklich alle Projekte und Aufgaben löschen? Diese Aktion kann nicht rückgängig gemacht werden.')){data={projects:[],tasks:[],settings:data.settings||{defaultView:'board',workspaceName:'Mein Workspace'}};currentProject='all';persist();render();closeModal('settingsOverlay');toast('Daten gelöscht')}};
+$('helpBtn').onclick=()=>$('helpOverlay').classList.add('open');$('adminBtn').onclick=()=>openAdmin();$('saveAdminGeneral').onclick=async()=>{try{await saveAdminGeneral()}catch(e){toast(e.message||'Speichern fehlgeschlagen')}};$('saveMailRules').onclick=async()=>{try{await saveMailRules()}catch(e){toast(e.message||'Speichern fehlgeschlagen')}};
+document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>closeModal(b.dataset.close));
+document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)closeModal(o.id)}));
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.overlay.open').forEach(o=>closeModal(o.id));if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){$('searchInput').focus();e.preventDefault()}});
+async function loadCloudState(user){
+  let {data:row,error}=await sb.from('flowtask_shared_state').select('projects,tasks,settings').eq('id',SHARED_ID).maybeSingle();
+  if(error) throw error;
+  if(!row){
+    const initial={projects:[{id:uid(),name:'Schule',color:'#6558e8'},{id:uid(),name:'Privat',color:'#2b9c82'},{id:uid(),name:'Projekte',color:'#e5a14b'}],tasks:[],settings:{defaultView:'board',workspaceName:'Flowtask Team'}};
+    const ins=await sb.from('flowtask_shared_state').insert({id:SHARED_ID,...initial,updated_at:new Date().toISOString()});
+    if(ins.error) throw ins.error; data=initial;
+  }else data={projects:row.projects||[],tasks:row.tasks||[],settings:row.settings||{defaultView:'board',workspaceName:'Flowtask Team'}};
+  Object.entries(data.settings?.statusColors||{}).forEach(([id,color])=>{let s=statuses.find(x=>x.id===id);if(s)s.color=color});
+  lastServerUpdate=row?.updated_at||lastServerUpdate;
+  normalizeStatuses();currentView=data.settings?.defaultView||'board';document.querySelector('.workspace div div').textContent=data.settings?.workspaceName||'Flowtask Team';render();
+  sb.channel('flowtask-shared')
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'flowtask_shared_state',filter:'id=eq.1'},()=>refreshSharedState())
+    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'flowtask_shared_state',filter:'id=eq.1'},payload=>{
+      const incoming=payload.new?.updated_at||'';
+      if(!incoming || incoming===lastServerUpdate)return;
+      refreshSharedState();
+    })
+    .subscribe();
+}
+let refreshInProgress=false;
+async function refreshSharedState(){
+  if(refreshInProgress)return;
+  refreshInProgress=true;
+  try{
+    const {data:row,error}=await sb.from('flowtask_shared_state').select('projects,tasks,settings,updated_at').eq('id',SHARED_ID).single();
+    if(error)throw error;
+    if(row.updated_at && lastServerUpdate && new Date(row.updated_at).getTime()<=new Date(lastServerUpdate).getTime())return;
+    applyingRemote=true;
+    data={projects:row.projects||[],tasks:row.tasks||[],settings:row.settings||{defaultView:'board',workspaceName:'Flowtask Team'}};
+    lastServerUpdate=row.updated_at||lastServerUpdate;
+    Object.entries(data.settings?.statusColors||{}).forEach(([id,color])=>{let st=statuses.find(x=>x.id===id);if(st)st.color=color});
+    normalizeStatuses();
+    document.querySelector('.workspace div div').textContent=data.settings?.workspaceName||'Flowtask Team';
+    render();
+  }catch(e){console.error('Gemeinsame Daten konnten nicht aktualisiert werden',e)}
+  finally{applyingRemote=false;refreshInProgress=false}
+}
+async function showApp(user){$('accountEmail').textContent=user.email;$('authScreen').style.display='none';$('app').style.display='grid';await loadCloudState(user);await claimFirstAdmin();await loadAdmin();idleMinutes=Number(data.settings?.idleMinutes||10);resetIdleTimer()}
+async function updateDeviceClass(){
+  const mobile=window.matchMedia('(max-width:700px), (hover:none) and (pointer:coarse) and (max-width:900px)').matches;
+  document.documentElement.dataset.device=mobile?'mobile':'desktop';
+  document.documentElement.dataset.orientation=window.innerWidth>window.innerHeight?'landscape':'portrait';
+}
+updateDeviceClass();
+window.addEventListener('resize',updateDeviceClass,{passive:true});
+window.addEventListener('orientationchange',()=>setTimeout(updateDeviceClass,50),{passive:true});
+
+function boot(){sb.auth.getSession().then(result=>{if(result.error)throw result.error;const session=result.data&&result.data.session;if(session){return showApp(session.user)}$('authScreen').style.display='grid';$('app').style.display='none';return null}).catch(e=>{console.error(e);const errorBox=$('authError');if(errorBox){errorBox.textContent='Cloud-Datenbank nicht erreichbar. Prüfe config.js und die Supabase-Einstellungen.';errorBox.classList.add('show')}})}
+let authMode='login';
+function setAuthMode(mode){authMode=mode;$('loginTab').classList.toggle('active',mode==='login');$('registerTab').classList.toggle('active',mode==='register');$('authTitle').textContent=mode==='login'?'Anmelden':'Konto erstellen';$('authSubmit').textContent=mode==='login'?'Anmelden':'Registrieren';$('authPassword').autocomplete=mode==='login'?'current-password':'new-password';$('authError').classList.remove('show');$('workspacePassword').value=''}
+$('loginTab').onclick=()=>setAuthMode('login');$('registerTab').onclick=()=>setAuthMode('register');
+$('authForm').addEventListener('submit',async e=>{e.preventDefault();$('authError').classList.remove('show');const email=$('authEmail').value.trim(),password=$('authPassword').value,workspacePassword=$('workspacePassword').value;try{const ok=await verifyWorkspacePassword(workspacePassword);if(!ok)throw new Error('Das gemeinsame Flowtask-Passwort ist falsch.');let r;if(authMode==='login') r=await sb.auth.signInWithPassword({email,password});else r=await sb.auth.signUp({email,password});if(r.error)throw r.error;if(authMode==='register'&&!r.data.session){$('authError').textContent='Registrierung angelegt. Bitte bestätige die E-Mail und melde dich danach an.';$('authError').classList.add('show');return}await showApp(r.data.user)}catch(err){$('authError').textContent=err.message;$('authError').classList.add('show')}});
+$('logoutBtn').onclick=async()=>{if(confirm('Wirklich abmelden?')){await sb.auth.signOut();location.reload()}};
+sb.auth.onAuthStateChange((event,session)=>{if(event==='SIGNED_OUT'){$('authScreen').style.display='grid';$('app').style.display='none'}});
+boot();</script>
+</body></html>
