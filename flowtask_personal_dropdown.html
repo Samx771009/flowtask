@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flowtask – Aufgabenmanagement</title>
+<style>
+:root{--bg:#f6f7fb;--panel:#fff;--text:#202432;--muted:#72798a;--line:#e6e8ef;--accent:#6558e8;--accent2:#eeeaff;--shadow:0 8px 28px #2222;--green:#168b68}
+*{box-sizing:border-box}body{margin:0;font:14px/1.45 Inter,system-ui,-apple-system,Segoe UI,sans-serif;color:var(--text);background:var(--bg)}button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;background:none;color:inherit}button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.app{display:grid;grid-template-columns:250px 1fr;min-height:100vh}.sidebar{background:#fff;border-right:1px solid var(--line);padding:22px 14px;display:flex;flex-direction:column;gap:20px}.brand{font-size:21px;font-weight:800;letter-spacing:-.8px;padding:0 10px}.brand span{color:var(--accent)}.workspace{margin:0 7px;padding:11px;border:1px solid var(--line);border-radius:10px;display:flex;align-items:center;gap:10px;font-weight:650}.personal-menu-wrap{position:relative;margin:0 7px}.personal-menu-toggle{width:100%;padding:11px;border:1px solid var(--line);border-radius:10px;background:#fff;display:flex;align-items:center;gap:10px;font:inherit;font-weight:650;color:inherit;text-align:left;cursor:pointer}.personal-menu-toggle:hover,.personal-menu-toggle[aria-expanded="true"]{border-color:#cbc6ff;background:var(--accent2)}.personal-menu-toggle .personal-chevron{margin-left:auto;color:#9298a7;transition:transform .15s}.personal-menu-toggle[aria-expanded="true"] .personal-chevron{transform:rotate(180deg)}.personal-dropdown{position:absolute;top:calc(100% + 7px);left:0;right:0;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow);padding:5px;z-index:50;display:none;max-height:min(360px,70vh);overflow:auto}.personal-dropdown.open{display:grid}.personal-dropdown button{width:100%;display:flex;align-items:center;gap:9px;padding:9px 10px;border:0;border-radius:7px;background:transparent;color:#62697a;text-align:left;cursor:pointer;font:inherit;font-size:13px}.personal-dropdown button:hover{background:var(--accent2);color:var(--accent)}.personal-dropdown button.logout{color:#c44!important}.personal-dropdown .menu-sep{height:1px;background:var(--line);margin:4px 2px}.avatar{width:30px;height:30px;border-radius:9px;background:#e4e0ff;color:#5143c6;display:grid;place-items:center;font-weight:800}.nav{display:grid;gap:4px}.nav button{display:flex;align-items:center;gap:11px;text-align:left;padding:10px 12px;border-radius:8px;color:#62697a}.nav button.active,.nav button:hover{background:var(--accent2);color:var(--accent);font-weight:650}.nav .count{margin-left:auto;font-size:12px}.section-label{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#9aa0ae;padding:8px 12px 2px}.project-item{display:flex;align-items:center;gap:9px;padding:8px 12px;color:#646b7b;border-radius:8px}.dot{width:9px;height:9px;border-radius:3px;background:#e5a14b;flex-shrink:0}.project-item button{margin-left:auto;color:#aaa}.side-bottom{margin-top:auto;display:grid;gap:5px}.main{min-width:0}.topbar{height:62px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px;padding:0 28px;background:#fff}.search{max-width:470px;flex:1;position:relative}.search input{width:100%;padding:10px 12px 10px 36px;border:1px solid var(--line);border-radius:9px;background:#fafbfe}.search span{position:absolute;left:12px;top:9px;color:#8a90a0}.top-actions{margin-left:auto;display:flex;gap:8px;align-items:center}.btn{border:1px solid var(--line);border-radius:8px;padding:9px 13px;background:#fff;font-weight:600}.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}.btn.small{padding:6px 9px;font-size:12px}.content{padding:22px 24px;max-width:1600px;margin:auto}.heading{display:flex;align-items:flex-start;gap:16px;margin-bottom:23px}.heading h1{font-size:27px;letter-spacing:-.8px;margin:0 0 5px}.sub{color:var(--muted)}.heading-actions{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}.tabs{display:flex;gap:5px;border-bottom:1px solid var(--line);margin-bottom:20px;overflow:auto}.tabs button{padding:12px 14px;color:var(--muted);white-space:nowrap;border-bottom:2px solid transparent}.tabs button.active{color:var(--accent);border-color:var(--accent);font-weight:700}.board{display:grid;grid-template-columns:repeat(9,minmax(230px,1fr));gap:15px;align-items:start;overflow-x:auto;padding-bottom:20px;min-width:max-content}.column{background:var(--column-bg,#eef0f6);border-radius:12px;padding:12px;min-height:300px;border-top:7px solid var(--column-color,#aaa);transition:.15s}.column .task-list{background:var(--column-tint,#f7f8fb);border-radius:9px;padding:7px;min-height:160px}.column .add-task{background:color-mix(in srgb,var(--column-color,#aaa) 9%, transparent)}.col-head{display:flex;align-items:center;gap:8px;font-weight:750;padding:4px 4px 13px}.col-head .n{color:#9298a7;font-weight:500}.col-head button{margin-left:auto;color:#8a90a0}.task-list{display:grid;gap:9px;min-height:80px}.task{background:#fff;border:1px solid #e8eaf0;border-radius:10px;padding:13px;box-shadow:0 2px 3px #20243205;cursor:grab}.task:hover{border-color:#cbc6ff;box-shadow:0 5px 15px #3b2da00c}.task-title{font-weight:650;line-height:1.4;margin-bottom:9px;overflow-wrap:anywhere}.task-desc{font-size:12px;color:var(--muted);margin:-3px 0 10px;white-space:pre-wrap}.tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}.tag{font-size:11px;padding:3px 7px;border-radius:5px;background:#f1efff;color:#5d50ce}.tag.red{background:#fff0ef;color:#c34b48}.tag.green{background:#e7f8f0;color:#16805f}.task-meta{display:flex;align-items:center;gap:9px;font-size:11px;color:#8b91a0}.task-meta .due{margin-left:auto}.overdue{color:#d34d4d!important}.add-task{width:100%;text-align:left;padding:9px 5px;color:#7b8191;border-radius:7px;margin-top:8px}.add-task:hover{background:#e3e5ee;color:var(--accent)}.empty{padding:25px;text-align:center;color:var(--muted);background:#fff;border:1px dashed var(--line);border-radius:12px}.list-view{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:auto}.list-row{display:grid;grid-template-columns:minmax(180px,2fr) 1fr 1fr 1fr 80px;gap:12px;align-items:center;padding:13px 16px;border-bottom:1px solid var(--line)}.list-row:last-child{border:0}.list-row.header{font-size:11px;color:var(--muted);text-transform:uppercase;background:#fafbfe}.task-name-cell{display:flex;align-items:center;gap:9px;font-weight:650}.check{accent-color:var(--accent)}.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:7px}.day{background:#fff;border:1px solid var(--line);border-radius:9px;min-height:105px;padding:8px}.day .date{font-size:12px;color:var(--muted)}.cal-task{font-size:11px;background:var(--accent2);color:#5143c6;padding:4px 5px;border-radius:4px;margin-top:5px;overflow-wrap:anywhere}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px}.stat{background:#fff;border:1px solid var(--line);border-radius:12px;padding:17px}.stat .value{font-size:28px;font-weight:800;margin:4px 0}.progress{height:6px;border-radius:10px;background:#eeeef5;overflow:hidden;margin-top:10px}.progress div{height:100%;background:var(--accent);border-radius:10px}.overlay{position:fixed;inset:0;background:#15182766;display:none;align-items:center;justify-content:center;padding:18px;z-index:10}.overlay.open{display:flex}.modal{background:#fff;width:min(560px,100%);max-height:90vh;overflow:auto;border-radius:15px;box-shadow:var(--shadow);padding:22px}.modal-head{display:flex;align-items:center;margin-bottom:17px}.modal-head h2{font-size:20px;margin:0}.modal-head button{margin-left:auto;font-size:22px;color:var(--muted)}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}.field{display:grid;gap:6px;margin-bottom:13px}.field.full{grid-column:1/-1}.field label{font-size:12px;font-weight:700;color:#656b7b}.field input,.field textarea,.field select{width:100%;padding:10px 11px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--text)}.field textarea{min-height:90px;resize:vertical}.modal-foot{display:flex;justify-content:space-between;gap:8px;margin-top:8px}.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#242637;color:#fff;padding:10px 16px;border-radius:9px;display:none;z-index:30}.toast.show{display:block}.mobile-menu{display:none}.auth-screen{position:fixed;inset:0;background:var(--bg);display:grid;place-items:center;padding:20px;z-index:100}.auth-card{width:min(430px,100%);background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:28px}.auth-card h1{margin:0 0 6px;font-size:28px}.auth-card .brand{padding:0;margin-bottom:18px}.auth-tabs{display:flex;border-bottom:1px solid var(--line);margin:18px 0}.auth-tabs button{flex:1;padding:11px;border-bottom:2px solid transparent;color:var(--muted)}.auth-tabs button.active{color:var(--accent);border-color:var(--accent);font-weight:700}.auth-error{display:none;background:#fff0ef;color:#b83e3b;border-radius:8px;padding:10px;margin-bottom:13px}.auth-error.show{display:block}.auth-screen .field{margin-bottom:14px}.auth-screen .btn{width:100%;padding:11px}.account-box{padding:9px 12px;color:#656b7b;font-size:12px;border-top:1px solid var(--line);margin-top:5px}.account-box b{display:block;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.logout{color:#c44!important}
+@media(max-width:1000px){.app{grid-template-columns:215px 1fr}.board{grid-template-columns:repeat(9,240px)}.content{padding:22px 18px}.topbar{padding:0 18px}.list-row{grid-template-columns:minmax(160px,2fr) 1fr 1fr 70px}.list-row>*:nth-child(4){display:none}}
+@media (max-width:1100px){
+  .app{grid-template-columns:215px 1fr}
+  .board{grid-template-columns:repeat(9,240px);min-width:max-content}
+  .content{padding:22px 18px}
+  .topbar{padding:0 18px}
+}
+@media (max-width:700px), (hover:none) and (pointer:coarse) and (max-width:900px){
+  html,body{width:100%;height:100%;min-height:100%;overflow:hidden;overscroll-behavior:none}
+  body{-webkit-text-size-adjust:100%;touch-action:pan-x pan-y}
+  .app{display:grid!important;grid-template-columns:1fr;width:100%;height:100dvh;min-height:100dvh;overflow:hidden}
+  .main{width:100%;height:100dvh;min-height:0;overflow:hidden}
+  .sidebar{position:fixed;left:0;top:0;bottom:0;width:min(82vw,300px);height:100dvh;z-index:80;display:flex!important;transform:translateX(-105%);transition:transform .2s ease;box-shadow:10px 0 28px rgba(0,0,0,.16);overflow-y:auto;background:#fff}
+  body.mobile-sidebar-open .sidebar{transform:translateX(0)}
+  body.mobile-sidebar-open:after{content:"";position:fixed;inset:0;background:rgba(15,18,30,.38);z-index:70}
+  .topbar{height:58px;min-height:58px;padding:0 9px;position:relative;z-index:20;display:flex;gap:7px}
+  .mobile-menu{display:inline-grid!important;place-items:center;width:42px;min-width:42px;height:42px;min-height:42px;font-size:21px;border:1px solid var(--line);border-radius:9px;background:#fff}
+  .search{max-width:none;min-width:0;flex:1}.search input{font-size:16px;padding-left:34px;height:42px}
+  .top-actions{gap:5px}.top-actions .hide-mobile,.top-actions .avatar{display:none}.top-actions .btn.primary{width:42px;min-width:42px;height:42px;padding:0;font-size:0}.top-actions .btn.primary:after{content:'+';font-size:22px}
+  .content{height:calc(100dvh - 58px);min-height:0;padding:10px 9px 8px;max-width:none;overflow:hidden;display:flex;flex-direction:column}
+  .heading{flex:0 0 auto;display:flex;align-items:center;gap:8px;margin-bottom:8px}.heading h1{font-size:21px}.heading .sub{display:none}.heading-actions{margin-left:auto;width:auto;display:flex;gap:5px;flex-wrap:nowrap}.heading-actions .btn{min-width:42px;width:42px;height:40px;padding:0;font-size:0}.heading-actions .btn:first-child:after{content:'☷';font-size:18px}.heading-actions .btn:nth-child(2):after{content:'↕';font-size:18px}.heading-actions .btn.primary:after{content:'+';font-size:21px}
+  #statsArea{flex:0 0 auto}.tabs{flex:0 0 auto;margin:0 0 8px;min-height:0;border-bottom:1px solid var(--line);overflow-x:auto;overflow-y:hidden}.tabs button{padding:8px 11px;font-size:13px}
+  #viewArea{flex:1;min-height:0;overflow:hidden;display:flex}
+  .board{display:flex;flex:1;min-width:0;width:100%;height:100%;overflow-x:auto;overflow-y:hidden;gap:9px;padding:0 0 5px;align-items:stretch;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}
+  .column{flex:0 0 calc(100vw - 18px);width:calc(100vw - 18px);height:100%;min-height:0;max-height:100%;padding:9px;border-radius:11px;display:flex;flex-direction:column;overflow:hidden;scroll-snap-align:start}
+  .col-head{flex:0 0 auto;min-height:40px;padding:3px 4px 7px}.col-head button{min-width:40px;min-height:40px}
+  .column .task-list{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;padding:6px;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+  .task-list .task{flex:0 0 auto;padding:13px;touch-action:pan-y}
+  .column>.add-task{flex:0 0 auto;min-height:44px;margin-top:7px;padding:10px 8px;position:relative;z-index:2;background:color-mix(in srgb,var(--column-color,#aaa) 12%,#fff)}
+  .list-view{width:100%;height:100%;overflow:auto;-webkit-overflow-scrolling:touch}.list-row{grid-template-columns:minmax(140px,2fr) 1fr 70px}.list-row>*:nth-child(3),.list-row>*:nth-child(4){display:none}
+  .calendar{height:100%;overflow:auto;grid-template-columns:repeat(7,minmax(105px,1fr));-webkit-overflow-scrolling:touch}
+  .stats{grid-template-columns:1fr;overflow:auto;min-height:0}.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.field input,.field textarea,.field select{min-height:44px;font-size:16px}
+  .overlay{align-items:center;justify-content:center;padding:7px;overflow:hidden}.modal{width:100%;height:min(100dvh - 14px,760px);max-height:calc(100dvh - 14px);border-radius:15px;padding:15px;display:flex;flex-direction:column;overflow:hidden}.modal-head{flex:0 0 auto}.modal form{min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-right:2px}.modal-foot{flex:0 0 auto;padding-top:8px;background:#fff;position:sticky;bottom:0}
+  .auth-screen{padding:10px;overflow:auto}.auth-card{padding:20px 16px;max-height:calc(100dvh - 20px);overflow:auto}
+  .device-mobile-only{display:block!important}
+}
+@media (min-width:701px) and (max-width:1100px){
+  .board{overflow-x:auto}
+}
+@media (min-width:1101px){
+  .device-mobile-only{display:none!important}
+}
+
+.sample-rows{display:grid;gap:8px}.sample-row{display:grid;grid-template-columns:minmax(130px,1fr) minmax(150px,1.2fr) auto;gap:8px;align-items:center;border:1px solid var(--line);border-radius:9px;padding:8px;background:#fafbfe}.sample-row input{width:100%;padding:9px;border:1px solid var(--line);border-radius:7px;background:#fff}.photo-label{display:inline-flex;align-items:center;justify-content:center;gap:5px;border:1px solid var(--line);border-radius:7px;padding:8px 9px;background:#fff;font-size:12px;cursor:pointer;white-space:nowrap}.photo-label input{display:none}.photo-name{font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:flex;align-items:center;gap:6px}.photo-preview{width:34px;height:34px;object-fit:cover;border-radius:6px;border:1px solid var(--line);background:#fff;flex:0 0 auto}.login-log{max-height:280px;overflow:auto;border:1px solid var(--line);border-radius:9px}.login-log-row{display:grid;grid-template-columns:1.4fr 1fr 1.2fr;gap:8px;padding:9px 11px;border-bottom:1px solid var(--line);font-size:12px}.login-log-row:last-child{border-bottom:0}.login-log-head{font-weight:700;background:#fafbfe;color:var(--muted)}
+</style>
+
+<style id="flowtask-reset-style">
+#passwordResetModal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:99999;padding:18px}
+#passwordResetModal.show{display:flex}
+#passwordResetModal .reset-box{width:min(420px,100%);background:#fff;border-radius:16px;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+#passwordResetModal h2{margin:0 0 8px}
+#passwordResetModal p{margin:0 0 16px}
+#passwordResetModal input{width:100%;box-sizing:border-box;margin:7px 0;padding:11px;border:1px solid #ccc;border-radius:9px}
+#passwordResetModal .reset-actions{display:flex;gap:8px;margin-top:12px}
+.sample-number-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}
+@media(max-width:700px){.sample-number-row{grid-template-columns:1fr}.reset-box{max-height:90dvh;overflow:auto}}
+</style>
+</head>
+<body>
+<div class="auth-screen" id="authScreen">
+  <div class="auth-card">
+    <div class="brand">flow<span>task</span></div>
+    <h1 id="authTitle">Anmelden</h1>
+    <div style="color:var(--muted)">Aufgaben sicher speichern und von jedem Login aus weiterarbeiten.</div>
+    <div class="auth-tabs"><button id="loginTab" class="active">Anmelden</button><button id="registerTab">Registrieren</button></div>
+    <div class="auth-error" id="authError"></div>
+    <button id="resendVerificationBtn" class="btn" type="button" style="display:none;width:100%;margin:10px 0">Bestätigungs-Mail erneut senden</button>
+    <form id="authForm">
+      <div class="field"><label for="authEmail">E-Mail</label><input id="authEmail" type="email" autocomplete="email" required></div>
+      <div class="field"><label for="authPassword">Persönliches Passwort</label><input id="authPassword" type="password" autocomplete="current-password" minlength="8" required></div>
+      <div class="field"><label for="workspacePassword">Gemeinsames Flowtask-Passwort</label><input id="workspacePassword" type="password" autocomplete="off" minlength="4" required><div style="font-size:11px;color:var(--muted)">Dieses zusätzliche Passwort wird vom Admin für alle Benutzer festgelegt.</div></div>
+      <button class="btn primary" id="authSubmit" type="submit">Anmelden</button><button class="btn" id="forgotPasswordBtn" type="button" style="margin-top:8px">Passwort zurücksetzen</button>
+    </form>
+    <div style="margin-top:14px;font-size:12px;color:var(--muted)">Mindestens 8 Zeichen. Passwörter werden serverseitig gehasht gespeichert.</div>
+  </div>
+</div>
+<div class="app" id="app" style="display:none">
+<aside class="sidebar">
+<div class="brand">flow<span>task</span></div>
+<div class="personal-menu-wrap"><button class="personal-menu-toggle" id="personalMenuToggle" type="button" aria-expanded="false" aria-haspopup="menu" aria-controls="personalDropdown"><div class="avatar">S</div><div><div id="workspaceTitle">Mein Workspace</div><div style="font-size:11px;color:#9298a7;font-weight:400">Persönlicher Bereich</div></div><span class="personal-chevron">⌄</span></button><div class="personal-dropdown" id="personalDropdown" role="menu"><button type="button" data-personal-action="settings">⚙ <span>Einstellungen</span></button><button type="button" data-personal-action="change-password">🔑 <span>Passwort ändern</span></button><button type="button" data-personal-action="reset-password">↻ <span>Passwort zurücksetzen</span></button><button type="button" id="personalAdminBtn" data-personal-action="admin" style="display:none">🛡 <span>Adminbereich</span></button><div class="menu-sep"></div><button type="button" class="logout" data-personal-action="logout">↪ <span>Abmelden</span></button></div></div>
+<nav class="nav" id="mainNav">
+<button class="active" data-view="board">▦ <span>Projektboard</span></button>
+<button data-view="list">☷ <span>Alle Aufgaben</span><span class="count" id="allCount">0</span></button>
+<button data-view="calendar">▦ <span>Kalender</span></button>
+<button data-view="dashboard">◫ <span>Übersicht</span></button>
+</nav>
+<div><div class="section-label">Projekte <button id="addProject" style="float:right;font-size:17px">＋</button></div><div id="projectNav"></div></div>
+<div class="side-bottom nav">
+<button id="exportBtn">⇩ <span>Backup exportieren</span></button>
+<button id="importBtn">⇧ <span>Backup importieren</span></button>
+
+<div class="account-box">Angemeldet als:<b id="accountEmail">—</b><span>Gemeinsamer Bereich · Änderungen werden live für alle angezeigt</span></div>
+</div>
+<input type="file" id="importFile" accept="application/json" hidden>
+</aside>
+<main class="main">
+<header class="topbar">
+<button class="mobile-menu" id="mobileAdd" title="Menü öffnen" aria-label="Menü öffnen">☰</button>
+<div class="search"><span>⌕</span><input id="searchInput" placeholder="Suchen: Aufgaben, Tags …"></div>
+<div class="top-actions"><button class="btn hide-mobile" id="helpBtn">? Hilfe</button><button class="btn primary" id="newTaskBtn">＋ Neue Aufgabe</button><div class="avatar">S</div></div>
+</header>
+<div class="content">
+<div class="heading"><div><h1 id="pageTitle">Projektboard</h1><div class="sub" id="pageSub">Plane deine Arbeit. Behalte den Überblick.</div></div><div class="heading-actions"><button class="btn" id="filterBtn">☷ Filter</button><button class="btn" id="sortBtn">↕ Sortieren</button><button class="btn primary" id="headingAdd">＋ Aufgabe</button></div></div>
+<div id="statsArea"></div>
+<div class="tabs" id="projectTabs"><button class="active" data-project="all">Alle Projekte</button></div>
+<div id="viewArea"></div>
+</div>
+</main>
+</div>
+<div class="overlay" id="taskOverlay"><div class="modal">
+<div class="modal-head"><h2 id="taskModalTitle">Neue Aufgabe</h2><button data-close="taskOverlay">×</button></div>
+<form id="taskForm">
+<input type="hidden" id="taskId">
+<div class="form-grid">
+<div class="field"><label for="salutationInput">Anrede</label><select id="salutationInput"><option value="">Bitte wählen</option><option>Herr</option><option>Frau</option><option>Dr.</option><option>Prof.</option><option>Familie</option><option>Firma</option></select></div>
+<div class="field"><label for="firstNameInput">Name</label><input id="firstNameInput" placeholder="Vorname"></div>
+<div class="field"><label for="lastNameInput">Nachname</label><input id="lastNameInput" placeholder="Nachname"></div>
+<div class="field"><label for="collectionDateInput">Entnahme Datum</label><input id="collectionDateInput" type="date"></div>
+<div class="field full"><label>Probennummern</label><div id="sampleRows" class="sample-rows"></div><button type="button" class="btn small" id="addSampleRow" style="margin-top:4px">＋ Probennummer hinzufügen</button></div>
+<div class="field"><label for="addressLine1Input">Adresse / Straße</label><input id="addressLine1Input" placeholder="Straße und Hausnummer"></div>
+<div class="field"><label for="addressLine2Input">Adresszeile 2</label><input id="addressLine2Input" placeholder="PLZ und Ort / Zusatz"></div>
+<div class="field"><label for="emailInput">Mailadresse</label><input id="emailInput" type="email" placeholder="kunde@example.de"></div>
+<div class="field"><label for="phoneInput">Telefonnummer</label><input id="phoneInput" type="tel" placeholder="Telefonnummer"></div>
+<div class="field full" id="alternativeAppointmentWrap" style="display:none"><label for="alternativeAppointmentInput">Alternativer Termin</label><input id="alternativeAppointmentInput" type="datetime-local"></div>
+<div class="field"><label for="statusInput">Station / Status</label><select id="statusInput"></select></div>
+<div class="field"><label for="projectInput">Projekt</label><select id="projectInput"></select></div>
+</div>
+<div class="modal-foot"><button type="button" class="btn" id="deleteTaskBtn" style="color:#c44;display:none">Löschen</button><div style="margin-left:auto;display:flex;gap:8px"><button type="button" class="btn" data-close="taskOverlay">Abbrechen</button><button class="btn primary" type="submit">Speichern</button></div></div>
+</form>
+</div></div>
+<div class="overlay" id="projectOverlay"><div class="modal" style="width:min(420px,100%)"><div class="modal-head"><h2>Projekt erstellen</h2><button data-close="projectOverlay">×</button></div><form id="projectForm"><div class="field"><label for="projectName">Projektname *</label><input id="projectName" required maxlength="70" placeholder="z. B. Schulprojekt"></div><div class="field"><label for="projectColor">Farbe</label><select id="projectColor"><option value="#6558e8">Violett</option><option value="#2b9c82">Türkis</option><option value="#e5a14b">Orange</option><option value="#e45c77">Pink</option><option value="#4e8cda">Blau</option></select></div><div class="modal-foot"><span></span><button class="btn primary">Projekt erstellen</button></div></form></div></div>
+<div class="overlay" id="settingsOverlay"><div class="modal"><div class="modal-head"><h2>Einstellungen</h2><button data-close="settingsOverlay">×</button></div><p>Alle angemeldeten Benutzer teilen sich diesen Arbeitsbereich. Änderungen werden live für alle angezeigt. Nach 10 Minuten ohne Aktivität wird automatisch abgemeldet.</p><div class="field"><label>Ansicht beim Start</label><select id="defaultView"><option value="board">Projektboard</option><option value="list">Alle Aufgaben</option><option value="calendar">Kalender</option><option value="dashboard">Übersicht</option></select></div><div class="field"><label>Workspace-Name</label><input id="workspaceName" value="Mein Workspace"></div><div class="modal-foot"><button class="btn" id="clearDataBtn" style="color:#c44">Alle Daten löschen</button><button class="btn primary" id="saveSettingsBtn">Speichern</button></div></div></div>
+<div class="overlay" id="adminOverlay"><div class="modal" style="width:min(760px,100%)">
+<div class="modal-head"><h2>🛡 Admin-Bereich</h2><button data-close="adminOverlay">×</button></div>
+<div id="adminStatus" class="sub" style="margin-bottom:15px"></div>
+<div class="form-grid">
+<div class="field full"><label>Gemeinsames Login-Passwort</label><input id="sharedPasswordNew" type="password" minlength="4" placeholder="Neues Passwort für alle Benutzer"></div>
+<div class="field"><label>Automatisch abmelden nach (Minuten)</label><input id="idleMinutes" type="number" min="1" max="1440" value="10"></div>
+<div class="field"><label>Absendername für automatische E-Mails</label><input id="mailSenderName" placeholder="Flowtask"></div>
+</div>
+<div style="display:flex;gap:8px;justify-content:flex-end;margin:8px 0 20px"><button class="btn primary" id="saveAdminGeneral">Allgemeine Einstellungen speichern</button></div>
+<h3>Passwort zurücksetzen</h3><div class="sub">Für dein eigenes Konto wird eine sichere Supabase-Passwort-Mail an deine angemeldete E-Mail-Adresse gesendet.</div><button class="btn" id="adminResetPasswordBtn" style="margin:8px 0 18px">Passwort-Zurücksetzungs-Mail senden</button>
+<h3>Login-Verlauf</h3><div class="sub" style="margin-bottom:10px">Wer sich wann angemeldet hat.</div><div id="loginLogArea" class="login-log"></div><div style="height:12px"></div>
+<h3>Automatische E-Mails nach Station</h3>
+<div class="sub" style="margin-bottom:10px">Wenn eine Aufgabe in eine aktivierte Station verschoben wird, kann automatisch eine Mail an die E-Mail-Adresse der Aufgabe gesendet werden.</div>
+<div id="mailRulesArea"></div>
+<div style="display:flex;justify-content:flex-end;gap:8px;margin-top:15px"><button class="btn" data-close="adminOverlay">Schließen</button><button class="btn primary" id="saveMailRules">E-Mail-Regeln speichern</button></div>
+</div></div>
+<div class="overlay" id="helpOverlay"><div class="modal"><div class="modal-head"><h2>Flowtask – Kurzhilfe</h2><button data-close="helpOverlay">×</button></div><p><b>Aufgaben erstellen:</b> „Neue Aufgabe“ anklicken und Titel, Status, Priorität oder Fälligkeitsdatum eintragen.</p><p><b>Board:</b> Aufgaben per Drag & Drop zwischen den Status-Spalten verschieben. Auf eine Karte klicken, um sie zu bearbeiten.</p><p><b>Filtern und suchen:</b> Suche, Projekt-Tabs und Filter helfen dir, Aufgaben zu finden.</p><p><b>Backup:</b> Über „Backup exportieren“ kannst du deine Daten als JSON-Datei sichern und später wieder importieren.</p><p style="color:#777">Hinweis: Flowtask nutzt Supabase für Benutzerkonten und Cloud-Speicherung. Alle angemeldeten Benutzer teilen sich diesen Arbeitsbereich und sehen Änderungen live.</p></div></div>
+<div class="overlay" id="resetOverlay"><div class="modal" style="width:min(430px,100%)"><div class="modal-head"><h2>Passwort zurücksetzen</h2><button data-close="resetOverlay">×</button></div><div class="field"><label for="newPasswordInput">Neues Passwort</label><input id="newPasswordInput" type="password" minlength="8" autocomplete="new-password"></div><div class="field"><label for="newPasswordConfirmInput">Neues Passwort wiederholen</label><input id="newPasswordConfirmInput" type="password" minlength="8" autocomplete="new-password"></div><div class="modal-foot"><span></span><button class="btn primary" id="saveResetPassword">Passwort speichern</button></div></div></div>
+<div class="toast" id="toast"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script>
+const { createClient } = supabase;
+const sb = createClient(FLOWTASK_SUPABASE_URL, FLOWTASK_SUPABASE_ANON_KEY);
+const statuses=[{id:'incoming',name:'Eingehende Aufträge',color:'#8b91a0'},{id:'appointment',name:'Termin wurde vereinbart',color:'#e5a14b'},{id:'sampled',name:'Bodenprobe entnommen',color:'#7b6ce0'},{id:'drying',name:'Im Trockenschrank',color:'#4e8cda'},{id:'prep',name:'Probenaufbereitung',color:'#2b9c82'},{id:'measure',name:'Probe kann gemessen',color:'#d28a42'},{id:'feedback',name:'Rückmeldung kann erfolgen',color:'#9a75d5'},{id:'finish',name:'Auftrag beenden',color:'#279b78'},{id:'waiting',name:'Kommt noch was? (Länger keine Rückmeldung)',color:'#d85b68'}];
+const oldStatusMap={todo:'incoming',progress:'sampled',review:'measure',done:'finish'};
+const defaultMailRules=()=>statuses.map(s=>({status_id:s.id,enabled:false,recipient_source:'task',fixed_email:'',subject:`Flowtask: ${s.name}`,body:`Hallo {{recipient_name}},\n\nDer Auftrag „{{title}}“ befindet sich jetzt in der Station „${s.name}“.\n\nViele Grüße\nFlowtask`}));
+let mailRules=[]; let isAdmin=false; let idleTimer=null; let idleMinutes=10;
+function hexTint(hex,alpha=0.10){let h=(hex||'#aaa').replace('#','');if(h.length!==6)return 'rgba(170,170,170,'+alpha+')';let r=parseInt(h.slice(0,2),16),g=parseInt(h.slice(2,4),16),b=parseInt(h.slice(4,6),16);return `rgba(${r},${g},${b},${alpha})`}
+function resetIdleTimer(){clearTimeout(idleTimer);if(!$('app')||$('app').style.display==='none')return;idleTimer=setTimeout(async()=>{await sb.auth.signOut();location.reload()},idleMinutes*60*1000)}
+['mousemove','mousedown','keydown','touchstart','scroll'].forEach(ev=>document.addEventListener(ev,resetIdleTimer,{passive:true}));
+async function verifyWorkspacePassword(p){const {data,error}=await sb.rpc('verify_flowtask_password',{p_password:p});if(error)throw error;return !!data}
+async function loadAdmin(){try{const {data,error}=await sb.rpc('is_flowtask_admin');if(error)throw error;isAdmin=!!data;$('adminBtn')?.style && ($('adminBtn').style.display=isAdmin?'flex':'none');$('personalAdminBtn').style.display=isAdmin?'flex':'none';}catch(e){console.warn('Adminstatus nicht verfügbar',e);isAdmin=false}}
+async function claimFirstAdmin(){const {data,error}=await sb.rpc('claim_first_flowtask_admin');if(!error&&data){isAdmin=true;$('adminBtn').style.display='flex'}}
+async function loadMailRules(){const {data,error}=await sb.from('flowtask_mail_rules').select('*').order('status_id');if(error)throw error;mailRules=(data&&data.length?data:defaultMailRules())}
+function renderMailRules(){if(!$('mailRulesArea'))return;$('mailRulesArea').innerHTML=mailRules.map((r,i)=>{let s=statuses.find(x=>x.id===r.status_id)||statuses[0];return `<div class="mail-rule" data-rule="${i}" style="border:1px solid var(--line);border-left:7px solid ${s.color};padding:12px;border-radius:10px;margin:8px 0;background:${hexTint(s.color,.05)}"><div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><b style="flex:1">${esc(s.name)}</b><label style="font-size:12px">Spaltenfarbe <input type="color" data-mail-color value="${s.color}"></label><label style="font-size:12px"><input type="checkbox" data-mail-enabled ${r.enabled?'checked':''}> Automatisch senden</label></div><div class="form-grid"><div class="field"><label>Empfänger</label><select data-mail-source><option value="task" ${r.recipient_source==='task'?'selected':''}>E-Mail aus Aufgabe</option><option value="fixed" ${r.recipient_source==='fixed'?'selected':''}>Feste E-Mail</option></select></div><div class="field"><label>Feste E-Mail</label><input data-mail-fixed value="${esc(r.fixed_email||'')}" placeholder="nur bei fester E-Mail"></div><div class="field full"><label>Betreff</label><input data-mail-subject value="${esc(r.subject||'')}"></div><div class="field full"><label>Text</label><textarea data-mail-body rows="4">${esc(r.body||'')}</textarea><div style="font-size:11px;color:var(--muted)">Platzhalter: {{recipient_name}}, {{title}}, {{status}}, {{due}}, {{assignee}}</div></div></div></div>`}).join('')}
+let loginLogLimit=3;
+async function loadLoginLogs(){
+  try{
+    const {data:rows,error}=await sb.from('flowtask_login_logs').select('email,logged_in_at,user_agent').order('logged_in_at',{ascending:false}).limit(loginLogLimit+1);
+    if(error)throw error;
+    const all=rows||[], shown=all.slice(0,loginLogLimit), hasMore=all.length>loginLogLimit;
+    $('loginLogArea').innerHTML=`<div class="login-log-row login-log-head"><span>E-Mail</span><span>Zeit</span><span>Gerät</span></div>`
+      +(shown.map(r=>`<div class="login-log-row"><span>${esc(r.email||'—')}</span><span>${r.logged_in_at?new Date(r.logged_in_at).toLocaleString('de-DE'):'—'}</span><span>${esc((r.user_agent||'').slice(0,60))}</span></div>`).join('')
+      ||'<div style="padding:12px;color:var(--muted)">Noch keine Logins.</div>')
+      +(hasMore?`<div style="display:flex;justify-content:flex-end;margin-top:10px"><button class="btn small" id="showMoreLoginLogs">Mehr anzeigen</button></div>`:'');
+    const more=$('showMoreLoginLogs');
+    if(more)more.onclick=async()=>{loginLogLimit+=3;await loadLoginLogs();};
+  }catch(e){
+    $('loginLogArea').innerHTML='<div style="padding:12px;color:#c44">Login-Verlauf konnte nicht geladen werden. Bitte SQL-Migration ausführen.</div>';
+  }
+}
+async function logLogin(user){try{await sb.from('flowtask_login_logs').insert({user_id:user.id,email:user.email||'',user_agent:navigator.userAgent})}catch(e){console.warn('Login-Log konnte nicht gespeichert werden',e)}}
+async function openAdmin(){if(!isAdmin)return;loginLogLimit=3;await loadMailRules();const {data:s}=await sb.from('flowtask_shared_state').select('settings').eq('id',SHARED_ID).single();let st=s?.settings||{};idleMinutes=Number(st.idleMinutes||10);$('idleMinutes').value=idleMinutes;$('mailSenderName').value=st.mailSenderName||'Flowtask';$('adminStatus').textContent='Du bist als Administrator angemeldet.';$('sharedPasswordNew').value='';renderMailRules();await loadLoginLogs();$('adminOverlay').classList.add('open')}
+
+async function saveAdminGeneral(){let pw=$('sharedPasswordNew').value.trim();if(pw){const {data,error}=await sb.rpc('set_flowtask_password',{p_password:pw});if(error)throw error}$('sharedPasswordNew').value='';idleMinutes=Math.max(1,Number($('idleMinutes').value||10));data.settings={...data.settings,idleMinutes,mailSenderName:$('mailSenderName').value.trim()||'Flowtask'};await persistNow();resetIdleTimer();toast(pw?'Gemeinsames Passwort und Einstellungen gespeichert':'Einstellungen gespeichert')}
+async function saveMailRules(){let rows=[...document.querySelectorAll('.mail-rule')];mailRules=rows.map((el,i)=>{let r=mailRules[i]||{};if(statuses[i])statuses[i].color=el.querySelector('[data-mail-color]').value;return {...r,status_id:statuses[i]?.id||r.status_id,enabled:el.querySelector('[data-mail-enabled]').checked,recipient_source:el.querySelector('[data-mail-source]').value,fixed_email:el.querySelector('[data-mail-fixed]').value.trim(),subject:el.querySelector('[data-mail-subject]').value,body:el.querySelector('[data-mail-body]').value}});data.settings={...data.settings,statusColors:Object.fromEntries(statuses.map(x=>[x.id,x.color]))};await persistNow();render();for(const r of mailRules){let {error}=await sb.from('flowtask_mail_rules').upsert(r,{onConflict:'status_id'});if(error)throw error}toast('E-Mail-Regeln gespeichert')}
+async function persistNow(){const {data:{user}}=await sb.auth.getUser();if(!user)return;const {error}=await sb.from('flowtask_shared_state').upsert({id:SHARED_ID,projects:data.projects,tasks:data.tasks,settings:data.settings,updated_at:new Date().toISOString()},{onConflict:'id'});if(error)throw error}
+async function triggerStatusEmail(task){try{await fetch(`${FLOWTASK_SUPABASE_URL}/functions/v1/send-status-email`,{method:'POST',headers:{Authorization:`Bearer ${(await sb.auth.getSession()).data.session?.access_token||''}`,'Content-Type':'application/json'},body:JSON.stringify({task})})}catch(e){console.warn('E-Mail-Funktion nicht erreichbar',e)}}
+
+function normalizeStatuses(){data.tasks.forEach(t=>{if(oldStatusMap[t.status])t.status=oldStatusMap[t.status]});}
+const uid=()=>Math.random().toString(36).slice(2,10);
+const dateOffset=n=>{let d=new Date();d.setDate(d.getDate()+n);return d.toISOString().slice(0,10)};
+let data={projects:[],tasks:[],settings:{defaultView:'board',workspaceName:'Mein Workspace'}};
+let currentView='board',currentProject='all',searchTerm='',filterMode=false,sortMode='due';
+let saveTimer=null;
+const SHARED_ID=1;
+let applyingRemote=false;
+let localChangeVersion=0;
+let lastServerUpdate='';
+async function writeSharedState(showToast=true){
+  const {data:{user}}=await sb.auth.getUser();
+  if(!user) return false;
+  const version=++localChangeVersion;
+  const payload={id:SHARED_ID,projects:data.projects,tasks:data.tasks,settings:data.settings,updated_at:new Date().toISOString()};
+  const {data:written,error}=await sb.from('flowtask_shared_state').upsert(payload,{onConflict:'id'}).select('updated_at').single();
+  if(error) throw error;
+  lastServerUpdate=written?.updated_at||payload.updated_at;
+  if(showToast) toast('Für alle gespeichert');
+  return version;
+}
+function persist(){
+  if(applyingRemote)return;
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(async()=>{try{await writeSharedState(true)}catch(e){console.error(e);toast('Speichern fehlgeschlagen')}} ,250);
+}
+async function persistAndRender(){
+  try{await writeSharedState(true);render()}catch(e){console.error(e);toast('Speichern fehlgeschlagen')}
+}
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function toast(msg){$('toast').textContent=msg;$('toast').classList.add('show');setTimeout(()=>$('toast').classList.remove('show'),2200)}
+function project(id){return data.projects.find(p=>p.id===id)||{name:'Ohne Projekt',color:'#aaa'}}
+function statusName(id){return statuses.find(s=>s.id===id)?.name||statuses[0].name}
+function priorityName(p){return ({low:'Niedrig',medium:'Mittel',high:'Hoch',urgent:'Dringend'})[p]||'Mittel'}
+function filteredTasks(){let list=data.tasks.filter(t=>(currentProject==='all'||t.project===currentProject)&&(!searchTerm||[t.title,t.desc,t.assignee,...(t.tags||[])].join(' ').toLowerCase().includes(searchTerm.toLowerCase())));if(filterMode)list=list.filter(t=>t.status!=='finish'&&(t.priority==='high'||t.priority==='urgent'));list.sort((a,b)=>sortMode==='priority'?({urgent:0,high:1,medium:2,low:3}[a.priority]-({urgent:0,high:1,medium:2,low:3}[b.priority])):sortMode==='created'?(b.created||0)-(a.created||0):(a.due||'9999').localeCompare(b.due||'9999'));return list}
+function renderSidebar(){const soilon=data.projects.find(p=>p.name.trim().toLowerCase()==='soilon');$('projectNav').innerHTML=(soilon?[soilon]:[]).map(p=>`<div class="project-item"><span class="dot" style="background:${esc(p.color)}"></span><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(p.name)}</span><button title="Projekt löschen" data-remove-project="${p.id}">⋯</button></div>`).join('');$('allCount').textContent=data.tasks.filter(t=>t.status!=='finish').length;$('projectInput').innerHTML=data.projects.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('')+'<option value="">Ohne Projekt</option>';$('statusInput').innerHTML=statuses.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('');const soilonTab=soilon||data.projects[0];if(soilonTab&&currentView==='board')currentProject=soilonTab.id;$('projectTabs').innerHTML=soilonTab?`<button data-project="${soilonTab.id}" class="active"><span style="color:${esc(soilonTab.color)}">●</span> ${esc(soilonTab.name)}</button>`:''}
+function taskCard(t){let due=t.collection_date?new Date(t.collection_date+'T12:00:00').toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'}):'';let name=[t.salutation,t.first_name,t.last_name].filter(Boolean).join(' ');let samples=(t.sample_numbers||[]).map(x=>x.number).filter(Boolean).join(', ');return `<article class="task" draggable="true" data-task="${t.id}"><div class="task-title">${esc(name||t.title)}</div>${samples?`<div class="task-desc">🧪 ${esc(samples)}</div>`:''}<div class="task-meta">${t.email?`<span>✉ ${esc(t.email)}</span>`:''}${t.phone?`<span>☎ ${esc(t.phone)}</span>`:''}<span class="due">${due?'📅 '+due:''}</span></div></article>`}
+
+function renderBoard(list){return `<div class="board">${statuses.map(s=>{let tasks=list.filter(t=>t.status===s.id);return `<section class="column" data-status="${s.id}" style="--column-color:${s.color};--column-bg:${hexTint(s.color,.16)};--column-tint:${hexTint(s.color,.055)}"><div class="col-head"><span class="dot" style="background:${s.color}"></span>${s.name}<span class="n">${tasks.length}</span><button title="Aufgabe hinzufügen" data-add-status="${s.id}">＋</button></div><div class="task-list" data-drop="${s.id}">${tasks.map(taskCard).join('')}</div><button class="add-task" data-add-status="${s.id}">＋ Aufgabe hinzufügen</button></section>`}).join('')}</div>`}
+function renderList(list){return `<div class="list-view"><div class="list-row header"><span>Aufgabe</span><span>Status</span><span>Probenentnahme</span><span>Projekt</span></div>${list.map(t=>`<div class="list-row"><div class="task-name-cell"><input class="check" type="checkbox" data-complete="${t.id}" ${t.status==='finish'?'checked':''}><button data-task="${t.id}" style="text-align:left;font-weight:650">${esc(t.title)}</button></div><span>${statusName(t.status)}</span><span>${t.due?new Date(t.due+'T12:00:00').toLocaleDateString('de-DE'):'—'}</span><span>${esc(project(t.project).name)}</span></div>`).join('')||'<div class="empty">Keine Aufgaben gefunden.</div>'}</div>`}
+function renderCalendar(list){let now=new Date(),year=now.getFullYear(),month=now.getMonth(),first=new Date(year,month,1),days=new Date(year,month+1,0).getDate(),start=(first.getDay()+6)%7;let cells=[];for(let i=0;i<start;i++)cells.push('<div class="day" style="background:transparent;border:0"></div>');for(let d=1;d<=days;d++){let key=`${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;cells.push(`<div class="day"><div class="date">${d}${key===dateOffset(0)?' · Heute':''}</div>${list.filter(t=>t.due===key).map(t=>`<button class="cal-task" data-task="${t.id}">${esc(t.title)}</button>`).join('')}</div>`)}return `<h3>${now.toLocaleDateString('de-DE',{month:'long',year:'numeric'})}</h3><div class="calendar">${['Mo','Di','Mi','Do','Fr','Sa','So'].map(x=>`<div style="padding:5px;color:#777;font-size:12px">${x}</div>`).join('')}${cells.join('')}</div>`}
+function renderDashboard(){let total=data.tasks.length,done=data.tasks.filter(t=>t.status==='finish').length,open=data.tasks.filter(t=>t.status!=='finish').length,late=data.tasks.filter(t=>t.due&&t.due<dateOffset(0)&&t.status!=='finish').length,rate=total?Math.round(done/total*100):0;return `<div class="stats"><div class="stat"><div class="sub">Alle Aufgaben</div><div class="value">${total}</div><div class="sub">${open} noch offen</div></div><div class="stat"><div class="sub">Erledigt</div><div class="value">${done}</div><div class="progress"><div style="width:${rate}%"></div></div><div class="sub" style="margin-top:6px">${rate}% abgeschlossen</div></div><div class="stat"><div class="sub">Überfällig</div><div class="value" style="color:${late?'#c44':'inherit'}">${late}</div><div class="sub">Aufgaben mit überschrittenem Termin</div></div></div><h3>Aktuelle Aufgaben</h3>${renderList(filteredTasks())}<h3 style="margin-top:25px">Projekte</h3><div class="stats">${data.projects.map(p=>{let n=data.tasks.filter(t=>t.project===p.id).length,d=data.tasks.filter(t=>t.project===p.id&&t.status==='finish').length;return `<div class="stat"><div style="font-weight:750"><span class="dot" style="display:inline-block;background:${esc(p.color)}"></span> ${esc(p.name)}</div><div class="value">${n}</div><div class="sub">${d} erledigt</div><div class="progress"><div style="width:${n?d/n*100:0}%;background:${esc(p.color)}"></div></div></div>`}).join('')}</div>`}
+function render(){renderSidebar();let list=filteredTasks();$('pageTitle').textContent=({board:currentProject==='all'?'Projektboard':project(currentProject).name,list:'Alle Aufgaben',calendar:'Kalender',dashboard:'Übersicht'})[currentView]||'Projektboard';$('pageSub').textContent=({board:'Plane deine Arbeit. Behalte den Überblick.',list:`${list.length} Aufgaben in deiner Auswahl`,calendar:'Termine und Fristen im Monatsüberblick.',dashboard:'Der aktuelle Stand deiner Projekte auf einen Blick.'})[currentView];$('projectTabs').style.display=['board','list'].includes(currentView)?'flex':'none';$('statsArea').innerHTML=currentView==='dashboard'?'':currentView==='board'?`<div class="sub" style="margin:-8px 0 16px">${list.length} Aufgaben · ${list.filter(t=>t.status!=='finish').length} offen</div>`:'';$('viewArea').innerHTML=currentView==='board'?renderBoard(list):currentView==='list'?renderList(list):currentView==='calendar'?renderCalendar(list):renderDashboard();document.querySelectorAll('#mainNav button[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===currentView));}
+function renderSampleRows(rows){
+  const arr=(Array.isArray(rows)&&rows.length?rows:[{number:'',photo_url:'',photo_name:''}]).slice(0,5);
+  $('sampleRows').innerHTML=arr.map((r,i)=>`<div class="sample-row" data-sample-index="${i}" data-photo-url="${esc(r.photo_url||'')}"><input data-sample-number placeholder="Probennummer ${i+1}" value="${esc(r.number||'')}"><label class="photo-label">📷 Foto<input type="file" accept="image/*" data-sample-photo></label><span class="photo-name" data-photo-name>${r.photo_url?`<img class="photo-preview" data-photo-preview src="${esc(r.photo_url)}" alt="Foto zu Probennummer ${i+1}">`:''}${esc(r.photo_name||'')}</span><button type="button" class="btn small" data-remove-sample="${i}" title="Zeile entfernen">×</button></div>`).join('');
+  updateSampleAddButton();
+}
+function collectSampleRows(){
+  return [...document.querySelectorAll('#sampleRows .sample-row')].map(row=>({number:row.querySelector('[data-sample-number]').value.trim(),photo_url:row.dataset.photoUrl||'',photo_name:row.querySelector('[data-photo-name]').textContent||''}));
+}
+function handleSamplePhoto(file,row){
+  if(!file||!row)return Promise.resolve();
+  return new Promise((resolve,reject)=>{
+    const max=900,img=new Image(),url=URL.createObjectURL(file);
+    img.onload=()=>{
+      try{
+        const scale=Math.min(1,max/Math.max(img.width,img.height));
+        const c=document.createElement('canvas');
+        c.width=Math.max(1,Math.round(img.width*scale));
+        c.height=Math.max(1,Math.round(img.height*scale));
+        c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+        row.dataset.photoUrl=c.toDataURL('image/jpeg',.72);
+        const name=row.querySelector('[data-photo-name]');
+        name.innerHTML=`<img class="photo-preview" data-photo-preview src="${esc(row.dataset.photoUrl)}" alt="Foto zu Probennummer">${esc(file.name)}`;
+        resolve();
+      }catch(err){reject(err)}finally{URL.revokeObjectURL(url)}
+    };
+    img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('Bild konnte nicht verarbeitet werden.'))};
+    img.src=url;
+  });
+}
+$('sampleRows').addEventListener('change',async e=>{
+  if(!e.target.matches('[data-sample-photo]'))return;
+  const row=e.target.closest('.sample-row');
+  row._photoPromise=handleSamplePhoto(e.target.files[0],row).catch(err=>{console.error(err);toast('Bild konnte nicht verarbeitet werden');throw err}).finally(()=>{row._photoPromise=null});
+  try{await row._photoPromise}catch(err){}
+});
+$('sampleRows').addEventListener('click',e=>{
+  const b=e.target.closest('[data-remove-sample]');
+  if(!b)return;
+  const rows=document.querySelectorAll('#sampleRows .sample-row');
+  if(rows.length<=1){
+    const row=rows[0];
+    if(row){row.querySelector('[data-sample-number]').value='';row.dataset.photoUrl='';row.querySelector('[data-photo-name]').textContent='';row.querySelector('[data-sample-photo]').value=''}
+  }else{b.closest('.sample-row').remove()}
+  updateSampleAddButton();
+});
+function updateSampleAddButton(){
+  const b=$('addSampleRow'); if(!b)return;
+  const count=document.querySelectorAll('#sampleRows .sample-row').length;
+  b.disabled=count>=5;
+  b.textContent=count>=5?'Maximal 5 Probennummern':'＋ Probennummer hinzufügen';
+}
+$('addSampleRow').onclick=()=>{
+  const rows=document.querySelectorAll('#sampleRows .sample-row');
+  if(rows.length>=5){toast('Maximal 5 Probennummern möglich');return;}
+  const index=rows.length;
+  const row=document.createElement('div');
+  row.className='sample-row';
+  row.dataset.sampleIndex=String(index);
+  row.dataset.photoUrl='';
+  row.innerHTML=`<input data-sample-number placeholder="Probennummer ${index+1}" value=""><label class="photo-label">📷 Foto<input type="file" accept="image/*" data-sample-photo></label><span class="photo-name" data-photo-name></span><button type="button" class="btn small" data-remove-sample="${index}" title="Zeile entfernen">×</button>`;
+  $('sampleRows').appendChild(row);
+  updateSampleAddButton();
+  row.querySelector('[data-sample-number]').focus();
+};
+function openTask(id='',status='incoming'){let t=data.tasks.find(x=>x.id===id);$('taskForm').reset();$('taskId').value=t?.id||'';$('taskModalTitle').textContent=t?'Aufgabe bearbeiten':'Neuer Auftrag';$('deleteTaskBtn').style.display=t?'inline-block':'none';$('salutationInput').value=t?.salutation||'';$('firstNameInput').value=t?.first_name||'';$('lastNameInput').value=t?.last_name||'';$('collectionDateInput').value=t?.collection_date||'';$('addressLine1Input').value=t?.address_line1||'';$('addressLine2Input').value=t?.address_line2||'';$('emailInput').value=t?.email||t?.recipient_email||'';$('phoneInput').value=t?.phone||'';$('alternativeAppointmentInput').value=t?.alternative_appointment||'';$('projectInput').value=t?.project??data.projects[0]?.id??'';$('statusInput').value=t?.status||status;renderSampleRows(t?.sample_numbers);toggleAlternativeAppointment();$('taskOverlay').classList.add('open');}
+function toggleAlternativeAppointment(){ $('alternativeAppointmentWrap').style.display=$('statusInput').value==='incoming'?'grid':'none'; }
+$('statusInput').addEventListener('change',toggleAlternativeAppointment);
+
+function closeModal(id){$(id).classList.remove('open')}
+$('taskForm').addEventListener('submit',async e=>{e.preventDefault();const pendingPhotos=[...document.querySelectorAll('#sampleRows .sample-row')].map(row=>row._photoPromise).filter(Boolean);if(pendingPhotos.length){try{await Promise.all(pendingPhotos)}catch(err){return}}let id=$('taskId').value,old=data.tasks.find(t=>t.id===id);let samples=collectSampleRows();let first=$('firstNameInput').value.trim(),last=$('lastNameInput').value.trim();let task={id:id||uid(),title:[first,last].filter(Boolean).join(' ')||samples.map(x=>x.number).filter(Boolean).join(', ')||'Neuer Auftrag',project:$('projectInput').value,status:$('statusInput').value,salutation:$('salutationInput').value,first_name:first,last_name:last,sample_numbers:samples,collection_date:$('collectionDateInput').value,address_line1:$('addressLine1Input').value.trim(),address_line2:$('addressLine2Input').value.trim(),email:$('emailInput').value.trim(),recipient_email:$('emailInput').value.trim(),phone:$('phoneInput').value.trim(),alternative_appointment:$('alternativeAppointmentInput').value,created:old?.created||Date.now()};if(old)data.tasks[data.tasks.findIndex(t=>t.id===id)]=task;else data.tasks.push(task);await persistAndRender();if(!old||old.status!==task.status) triggerStatusEmail(task);closeModal('taskOverlay');toast(old?'Auftrag aktualisiert':'Auftrag erstellt')});
+$('deleteTaskBtn').onclick=async()=>{let id=$('taskId').value;if(id&&confirm('Diese Aufgabe wirklich löschen?')){data.tasks=data.tasks.filter(t=>t.id!==id);await persistAndRender();closeModal('taskOverlay');toast('Aufgabe gelöscht')}};
+$('projectForm').addEventListener('submit',async e=>{e.preventDefault();let name=$('projectName').value.trim();if(!name)return;let p={id:uid(),name,color:$('projectColor').value};data.projects.push(p);currentProject=p.id;await persistAndRender();closeModal('projectOverlay');$('projectForm').reset();render();toast('Projekt erstellt')});
+$('mainNav').addEventListener('click',e=>{let b=e.target.closest('[data-view]');if(b){currentView=b.dataset.view;currentProject='all';render()}});
+$('projectTabs').addEventListener('click',e=>{let b=e.target.closest('[data-project]');if(b){currentProject=b.dataset.project;render()}});
+$('projectNav').addEventListener('click',e=>{let b=e.target.closest('[data-remove-project]');if(b){let p=project(b.dataset.removeProject);if(confirm(`Projekt „${p.name}“ löschen? Aufgaben bleiben erhalten und werden keinem Projekt zugeordnet.`)){data.tasks.forEach(t=>{if(t.project===p.id)t.project=''});data.projects=data.projects.filter(x=>x.id!==p.id);if(currentProject===p.id)currentProject='all';persist();render()}}else{let row=e.target.closest('.project-item');if(row){let name=row.querySelector('span:nth-child(2)').textContent;let p=data.projects.find(x=>x.name===name);if(p){currentProject=p.id;currentView='board';render()}}}});
+$('viewArea').addEventListener('click',async e=>{let add=e.target.closest('[data-add-status]');if(add){openTask('',add.dataset.addStatus);return}let chk=e.target.closest('[data-complete]');if(chk){let t=data.tasks.find(x=>x.id===chk.dataset.complete);if(t){t.status=chk.checked?'finish':'incoming';try{await persistAndRender()}catch(err){console.error(err);toast('Speichern fehlgeschlagen')}}return}let el=e.target.closest('[data-task]');if(el){openTask(el.dataset.task)}});
+$('viewArea').addEventListener('dragstart',e=>{let el=e.target.closest('[data-task]');if(el){e.dataTransfer.setData('text/plain',el.dataset.task);e.dataTransfer.effectAllowed='move'}});
+$('viewArea').addEventListener('dragover',e=>{let col=e.target.closest('[data-drop]');if(col){e.preventDefault();e.dataTransfer.dropEffect='move'}});
+$('viewArea').addEventListener('drop',async e=>{let col=e.target.closest('[data-drop]');if(!col)return;e.preventDefault();let t=data.tasks.find(x=>x.id===e.dataTransfer.getData('text/plain'));if(t){let oldStatus=t.status;t.status=col.dataset.drop;try{await persistAndRender();if(oldStatus!==t.status) triggerStatusEmail(t)}catch(err){console.error(err);toast('Speichern fehlgeschlagen')}}});
+$('newTaskBtn').onclick=$('headingAdd').onclick=$('mobileAdd').onclick=()=>openTask();
+$('addProject').onclick=()=>$('projectOverlay').classList.add('open');
+$('filterBtn').onclick=()=>{filterMode=!filterMode;$('filterBtn').textContent=filterMode?'☷ Filter: wichtig':'☷ Filter';render()};
+$('sortBtn').onclick=()=>{sortMode=sortMode==='due'?'priority':sortMode==='priority'?'created':'due';$('sortBtn').textContent='↕ '+({due:'Fälligkeit',priority:'Priorität',created:'Neueste'})[sortMode];render()};
+$('searchInput').addEventListener('input',e=>{searchTerm=e.target.value;render()});
+$('exportBtn').onclick=()=>{let blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='flowtask-backup-'+dateOffset(0)+'.json';a.click();URL.revokeObjectURL(url);toast('Backup exportiert')};
+$('importBtn').onclick=()=>$('importFile').click();
+$('importFile').onchange=async e=>{let f=e.target.files[0];if(!f)return;try{let d=JSON.parse(await f.text());if(!Array.isArray(d.tasks)||!Array.isArray(d.projects))throw Error();if(confirm('Backup laden und aktuelle Daten ersetzen?')){data=d;persist();render();toast('Backup importiert')}}catch(err){alert('Die Datei ist kein gültiges Flowtask-Backup.')}e.target.value=''};
+function openSettingsMenu(){closePersonalMenus();$('defaultView').value=data.settings?.defaultView||'board';$('workspaceName').value=data.settings?.workspaceName||'Mein Workspace';$('settingsOverlay').classList.add('open')}
+if($('settingsBtn'))$('settingsBtn').onclick=openSettingsMenu;
+$('saveSettingsBtn').onclick=()=>{data.settings={...data.settings,defaultView:$('defaultView').value,workspaceName:$('workspaceName').value.trim()||'Mein Workspace'};document.querySelector('.workspace div div').textContent=data.settings.workspaceName;persist();closeModal('settingsOverlay');toast('Einstellungen gespeichert')};
+$('clearDataBtn').onclick=()=>{if(confirm('Wirklich alle Projekte und Aufgaben löschen? Diese Aktion kann nicht rückgängig gemacht werden.')){data={projects:[],tasks:[],settings:data.settings||{defaultView:'board',workspaceName:'Mein Workspace'}};currentProject='all';persist();render();closeModal('settingsOverlay');toast('Daten gelöscht')}};
+$('helpBtn').onclick=()=>$('helpOverlay').classList.add('open');if($('adminBtn'))$('adminBtn').onclick=()=>openAdmin();$('saveAdminGeneral').onclick=async()=>{try{await saveAdminGeneral()}catch(e){toast(e.message||'Speichern fehlgeschlagen')}};$('saveMailRules').onclick=async()=>{try{await saveMailRules()}catch(e){toast(e.message||'Speichern fehlgeschlagen')}};$('adminResetPasswordBtn').onclick=async()=>{try{const email=(await sb.auth.getUser()).data.user?.email;if(!email)throw Error('Keine E-Mail-Adresse gefunden.');const r=await sb.auth.resetPasswordForEmail(email,{redirectTo:window.location.origin+window.location.pathname});if(r.error)throw r.error;toast('Passwort-Zurücksetzungs-Mail wurde angefordert')}catch(e){toast(e.message||'Zurücksetzen fehlgeschlagen')}};
+document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>closeModal(b.dataset.close));
+document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)closeModal(o.id)}));
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.overlay.open').forEach(o=>closeModal(o.id));if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){$('searchInput').focus();e.preventDefault()}});
+async function loadCloudState(user){
+  let {data:row,error}=await sb.from('flowtask_shared_state').select('projects,tasks,settings').eq('id',SHARED_ID).maybeSingle();
+  if(error) throw error;
+  if(!row){
+    const initial={projects:[{id:uid(),name:'Schule',color:'#6558e8'},{id:uid(),name:'Privat',color:'#2b9c82'},{id:uid(),name:'Projekte',color:'#e5a14b'}],tasks:[],settings:{defaultView:'board',workspaceName:'Flowtask Team'}};
+    const ins=await sb.from('flowtask_shared_state').insert({id:SHARED_ID,...initial,updated_at:new Date().toISOString()});
+    if(ins.error) throw ins.error; data=initial;
+  }else data={projects:row.projects||[],tasks:row.tasks||[],settings:row.settings||{defaultView:'board',workspaceName:'Flowtask Team'}};
+  Object.entries(data.settings?.statusColors||{}).forEach(([id,color])=>{let s=statuses.find(x=>x.id===id);if(s)s.color=color});
+  lastServerUpdate=row?.updated_at||lastServerUpdate;
+  normalizeStatuses();currentView=data.settings?.defaultView||'board';document.querySelector('.workspace div div').textContent=data.settings?.workspaceName||'Flowtask Team';render();
+  sb.channel('flowtask-shared')
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'flowtask_shared_state',filter:'id=eq.1'},()=>refreshSharedState())
+    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'flowtask_shared_state',filter:'id=eq.1'},payload=>{
+      const incoming=payload.new?.updated_at||'';
+      if(!incoming || incoming===lastServerUpdate)return;
+      refreshSharedState();
+    })
+    .subscribe();
+}
+let refreshInProgress=false;
+async function refreshSharedState(){
+  if(refreshInProgress)return;
+  refreshInProgress=true;
+  try{
+    const {data:row,error}=await sb.from('flowtask_shared_state').select('projects,tasks,settings,updated_at').eq('id',SHARED_ID).single();
+    if(error)throw error;
+    if(row.updated_at && lastServerUpdate && new Date(row.updated_at).getTime()<=new Date(lastServerUpdate).getTime())return;
+    applyingRemote=true;
+    data={projects:row.projects||[],tasks:row.tasks||[],settings:row.settings||{defaultView:'board',workspaceName:'Flowtask Team'}};
+    lastServerUpdate=row.updated_at||lastServerUpdate;
+    Object.entries(data.settings?.statusColors||{}).forEach(([id,color])=>{let st=statuses.find(x=>x.id===id);if(st)st.color=color});
+    normalizeStatuses();
+    document.querySelector('.workspace div div').textContent=data.settings?.workspaceName||'Flowtask Team';
+    render();
+  }catch(e){console.error('Gemeinsame Daten konnten nicht aktualisiert werden',e)}
+  finally{applyingRemote=false;refreshInProgress=false}
+}
+async function showApp(user){$('accountEmail').textContent=user.email;$('authScreen').style.display='none';$('app').style.display='grid';await loadCloudState(user);await claimFirstAdmin();await loadAdmin();idleMinutes=Number(data.settings?.idleMinutes||10);resetIdleTimer()}
+async function updateDeviceClass(){
+  const mobile=window.matchMedia('(max-width:700px), (hover:none) and (pointer:coarse) and (max-width:900px)').matches;
+  document.documentElement.dataset.device=mobile?'mobile':'desktop';
+  document.documentElement.dataset.orientation=window.innerWidth>window.innerHeight?'landscape':'portrait';
+}
+updateDeviceClass();
+window.addEventListener('resize',updateDeviceClass,{passive:true});
+window.addEventListener('orientationchange',()=>setTimeout(updateDeviceClass,50),{passive:true});
+
+async function boot(){try{const {data:{session},error}=await sb.auth.getSession();if(error)throw error;if(session) await showApp(session.user);else {$('authScreen').style.display='grid';$('app').style.display='none'}}catch(e){console.error(e);$('authError').textContent='Cloud-Datenbank nicht erreichbar. Prüfe config.js und die Supabase-Einstellungen.';$('authError').classList.add('show')}}
+const mobileMenuBtn=$('mobileAdd');
+if(mobileMenuBtn){mobileMenuBtn.onclick=()=>document.body.classList.toggle('mobile-sidebar-open');}
+document.addEventListener('click',e=>{if(!document.body.classList.contains('mobile-sidebar-open'))return;if(e.target.closest('.sidebar')||e.target.closest('#mobileAdd'))return;document.body.classList.remove('mobile-sidebar-open')});
+$('mainNav').addEventListener('click',()=>document.body.classList.remove('mobile-sidebar-open'));
+let authMode='login';
+function setAuthMode(mode){authMode=mode;$('loginTab').classList.toggle('active',mode==='login');$('registerTab').classList.toggle('active',mode==='register');$('authTitle').textContent=mode==='login'?'Anmelden':'Konto erstellen';$('authSubmit').textContent=mode==='login'?'Anmelden':'Registrieren';$('authPassword').autocomplete=mode==='login'?'current-password':'new-password';$('authError').classList.remove('show');$('workspacePassword').value=''}
+$('loginTab').onclick=()=>setAuthMode('login');$('registerTab').onclick=()=>setAuthMode('register');
+function closePersonalMenus(){document.querySelectorAll('.personal-dropdown.open').forEach(m=>m.classList.remove('open'));document.querySelectorAll('.personal-menu-toggle[aria-expanded=\"true\"]').forEach(b=>b.setAttribute('aria-expanded','false'))}
+function togglePersonalMenu(){const b=$('personalMenuToggle'),m=$('personalDropdown');const open=m.classList.toggle('open');b.setAttribute('aria-expanded',String(open))}
+async function requestPasswordReset(){closePersonalMenus();try{const email=(await sb.auth.getUser()).data.user?.email;if(!email)throw Error('Keine E-Mail-Adresse gefunden.');const r=await sb.auth.resetPasswordForEmail(email,{redirectTo:window.location.origin+window.location.pathname});if(r.error)throw r.error;toast('Passwort-Zurücksetzungs-Mail wurde angefordert')}catch(e){toast(e.message||'Zurücksetzen fehlgeschlagen')}}
+function openChangePassword(){closePersonalMenus();$('resetOverlay').classList.add('open')}
+$('personalMenuToggle').addEventListener('click',e=>{e.stopPropagation();togglePersonalMenu()});document.addEventListener('click',e=>{if(!e.target.closest('.personal-menu-wrap'))closePersonalMenus()});$('personalDropdown').addEventListener('click',async e=>{const b=e.target.closest('[data-personal-action]');if(!b)return;const a=b.dataset.personalAction;if(a==='settings')openSettingsMenu();else if(a==='change-password')openChangePassword();else if(a==='reset-password')requestPasswordReset();else if(a==='admin'){if(isAdmin)openAdmin();else closePersonalMenus()}else if(a==='logout'){closePersonalMenus();if(confirm('Wirklich abmelden?')){await sb.auth.signOut();location.reload()}}});
+$('authForm').addEventListener('submit',async e=>{e.preventDefault();$('authError').classList.remove('show');$('resendVerificationBtn').style.display='none';const email=$('authEmail').value.trim(),password=$('authPassword').value,workspacePassword=$('workspacePassword').value;try{const ok=await verifyWorkspacePassword(workspacePassword);if(!ok)throw new Error('Das gemeinsame Flowtask-Passwort ist falsch.');let r;if(authMode==='login') r=await sb.auth.signInWithPassword({email,password});else r=await sb.auth.signUp({email,password,options:{emailRedirectTo:window.location.origin+window.location.pathname}});if(r.error)throw r.error;if(authMode==='register'&&!r.data.session){$('authError').textContent='Registrierung angelegt. Bitte bestätige deine E-Mail. Falls keine Mail ankommt, kannst du sie erneut senden.';$('authError').classList.add('show');$('resendVerificationBtn').style.display='block';return}await logLogin(r.data.user);await showApp(r.data.user)}catch(err){$('authError').textContent=err.message;$('authError').classList.add('show');if(/confirm|verified|bestätig|verifiz/i.test(err.message))$('resendVerificationBtn').style.display='block'}});
+$('resendVerificationBtn').onclick=async()=>{const email=$('authEmail').value.trim();if(!email){$('authError').textContent='Bitte zuerst deine E-Mail-Adresse eingeben.';$('authError').classList.add('show');return}try{const r=await sb.auth.resend({type:'signup',email,options:{emailRedirectTo:window.location.origin+window.location.pathname}});if(r.error)throw r.error;$('authError').textContent='Die Bestätigungs-Mail wurde erneut angefordert. Bitte auch den Spam-Ordner prüfen.';$('authError').classList.add('show')}catch(err){$('authError').textContent=err.message;$('authError').classList.add('show')}};
+$('forgotPasswordBtn').onclick=async()=>{const email=$('authEmail').value.trim();if(!email){$('authError').textContent='Bitte zuerst deine E-Mail-Adresse eingeben.';$('authError').classList.add('show');return}try{const r=await sb.auth.resetPasswordForEmail(email,{redirectTo:window.location.origin+window.location.pathname});if(r.error)throw r.error;$('authError').textContent='Eine Passwort-Zurücksetzungs-Mail wurde angefordert. Bitte Posteingang und Spam prüfen.';$('authError').classList.add('show')}catch(err){$('authError').textContent=err.message;$('authError').classList.add('show')}};
+if($('logoutBtn'))$('logoutBtn').onclick=async()=>{if(confirm('Wirklich abmelden?')){await sb.auth.signOut();location.reload()}};
+sb.auth.onAuthStateChange((event,session)=>{if(event==='PASSWORD_RECOVERY'){$('authScreen').style.display='none';$('app').style.display='none';$('resetOverlay').classList.add('open')}if(event==='SIGNED_OUT'){$('authScreen').style.display='grid';$('app').style.display='none'}});
+$('saveResetPassword').onclick=async()=>{const p=$('newPasswordInput').value,c=$('newPasswordConfirmInput').value;if(p.length<8){toast('Mindestens 8 Zeichen verwenden');return}if(p!==c){toast('Passwörter stimmen nicht überein');return}try{const r=await sb.auth.updateUser({password:p});if(r.error)throw r.error;$('resetOverlay').classList.remove('open');$('newPasswordInput').value='';$('newPasswordConfirmInput').value='';toast('Passwort geändert');const {data:{user}}=await sb.auth.getUser();if(user)await showApp(user)}catch(e){toast(e.message||'Passwort konnte nicht geändert werden')}};
+boot();</script>
+
+<script id="flowtask-reset-script">
+function openPasswordResetModal(){
+  const m=document.getElementById('passwordResetModal');
+  if(m)m.classList.add('show');
+}
+function closePasswordResetModal(){
+  const m=document.getElementById('passwordResetModal');
+  if(m)m.classList.remove('show');
+}
+async function submitPasswordReset(){
+  const a=document.getElementById('resetNewPassword');
+  const b=document.getElementById('resetNewPassword2');
+  const msg=document.getElementById('resetPasswordMessage');
+  if(!a||!b)return;
+  if(a.value.length<8){msg.textContent='Das Passwort muss mindestens 8 Zeichen lang sein.';return;}
+  if(a.value!==b.value){msg.textContent='Die beiden Passwörter stimmen nicht überein.';return;}
+  try{
+    if(typeof sb!=='undefined'){
+      const {error}=await sb.auth.updateUser({password:a.value});
+      if(error) throw error;
+      msg.textContent='Passwort erfolgreich geändert.';
+      setTimeout(closePasswordResetModal,900);
+    }else{
+      msg.textContent='Die Verbindung zur Anmeldung ist noch nicht verfügbar.';
+    }
+  }catch(e){
+    msg.textContent=e?.message||'Das Passwort konnte nicht geändert werden.';
+  }
+}
+</script>
+
+<div id="passwordResetModal" aria-hidden="true">
+  <div class="reset-box">
+    <h2>Neues Passwort festlegen</h2>
+    <p>Gib dein neues Passwort ein und wiederhole es zur Bestätigung.</p>
+    <label>Neues Passwort</label>
+    <input id="resetNewPassword" type="password" autocomplete="new-password" placeholder="Neues Passwort">
+    <label>Passwort wiederholen</label>
+    <input id="resetNewPassword2" type="password" autocomplete="new-password" placeholder="Passwort wiederholen">
+    <div id="resetPasswordMessage" style="min-height:20px;margin-top:6px"></div>
+    <div class="reset-actions">
+      <button type="button" onclick="closePasswordResetModal()">Abbrechen</button>
+      <button type="button" onclick="submitPasswordReset()">Passwort speichern</button>
+    </div>
+  </div>
+</div>
+
+<script id="flowtask-alt-position">
+document.addEventListener('DOMContentLoaded',()=>{
+  const labels=[...document.querySelectorAll('label')];
+  const termin=labels.find(x=>/^\s*Termin\s*$/i.test(x.textContent.trim()) || /Termin/i.test(x.textContent));
+  if(!termin)return;
+  const all=[...document.querySelectorAll('input,textarea,select')];
+  const alt=all.find(x=>/alternative|alternativ/i.test((x.name||'')+' '+(x.id||'')+' '+(x.placeholder||'')));
+  if(!alt)return;
+  const altWrap=alt.closest('.field,.form-group,.input-group,div')||alt;
+  const terminWrap=termin.closest('.field,.form-group,.input-group,div')||termin;
+  if(terminWrap.parentElement) terminWrap.parentElement.insertBefore(altWrap,terminWrap.nextSibling);
+});
+</script>
+</body></html>
