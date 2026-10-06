@@ -51,6 +51,20 @@
 }
 
 .sample-rows{display:grid;gap:8px}.sample-row{display:grid;grid-template-columns:minmax(130px,1fr) minmax(150px,1.2fr) auto;gap:8px;align-items:center;border:1px solid var(--line);border-radius:9px;padding:8px;background:#fafbfe}.sample-row input{width:100%;padding:9px;border:1px solid var(--line);border-radius:7px;background:#fff}.photo-label{display:inline-flex;align-items:center;justify-content:center;gap:5px;border:1px solid var(--line);border-radius:7px;padding:8px 9px;background:#fff;font-size:12px;cursor:pointer;white-space:nowrap}.photo-label input{display:none}.photo-name{font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:flex;align-items:center;gap:6px}.photo-preview{width:34px;height:34px;object-fit:cover;border-radius:6px;border:1px solid var(--line);background:#fff;flex:0 0 auto}.login-log{max-height:280px;overflow:auto;border:1px solid var(--line);border-radius:9px}.login-log-row{display:grid;grid-template-columns:1.4fr 1fr 1.2fr;gap:8px;padding:9px 11px;border-bottom:1px solid var(--line);font-size:12px}.login-log-row:last-child{border-bottom:0}.login-log-head{font-weight:700;background:#fafbfe;color:var(--muted)}
+
+/* Flowtask login verification animation */
+.flowtask-verify-overlay{position:fixed;inset:0;z-index:99999;display:grid;place-items:center;background:rgba(246,247,251,.72);backdrop-filter:blur(10px);opacity:0;visibility:hidden;transition:opacity .25s ease,visibility .25s ease}
+.flowtask-verify-overlay.open{opacity:1;visibility:visible}
+.flowtask-verify-card{width:min(430px,calc(100vw - 32px));min-height:360px;padding:42px 30px 34px;border:1px solid rgba(255,255,255,.8);border-radius:24px;background:rgba(255,255,255,.92);box-shadow:0 24px 80px rgba(32,36,50,.16);display:flex;flex-direction:column;align-items:center;text-align:center;transform:translateY(12px) scale(.97);transition:transform .35s ease}
+.flowtask-verify-overlay.open .flowtask-verify-card{transform:translateY(0) scale(1)}
+.flowtask-verify-title{font-size:28px;font-weight:800;letter-spacing:-.7px;margin:4px 0 8px}.flowtask-verify-sub{font-size:15px;color:var(--muted);margin-bottom:34px}
+.flowtask-ring{width:112px;height:112px;border-radius:50%;position:relative;display:grid;place-items:center;background:conic-gradient(var(--accent) 0deg,rgba(101,88,232,.12) 0deg);transition:background .08s linear}
+.flowtask-ring::before{content:"";position:absolute;inset:8px;border-radius:50%;background:#fff;box-shadow:inset 0 0 0 1px rgba(101,88,232,.10)}
+.flowtask-ring-inner{position:relative;z-index:1;width:76px;height:76px;border-radius:50%;display:grid;place-items:center;font-size:24px;font-weight:800;color:var(--accent);background:#fff;box-shadow:0 5px 20px rgba(101,88,232,.12)}
+.flowtask-verify-success{display:none;flex-direction:column;align-items:center;gap:14px}.flowtask-check{width:86px;height:86px;border-radius:50%;display:grid;place-items:center;background:#18b97e;color:#fff;font-size:48px;font-weight:700;box-shadow:0 0 0 12px rgba(24,185,126,.10),0 12px 35px rgba(24,185,126,.25);animation:flowtaskCheck .55s cubic-bezier(.2,.9,.3,1.25)}
+.flowtask-verified-badge{padding:7px 18px;border-radius:999px;background:#18b97e;color:#fff;font-size:12px;font-weight:800;letter-spacing:1.3px}.flowtask-success-sub{color:var(--muted);font-size:15px}
+@keyframes flowtaskCheck{0%{transform:scale(.2);opacity:0}70%{transform:scale(1.12)}100%{transform:scale(1);opacity:1}}
+@media(max-width:700px){.flowtask-verify-card{min-height:330px;padding:34px 22px}.flowtask-verify-title{font-size:24px}}
 </style>
 
 <style id="flowtask-reset-style">
@@ -66,6 +80,22 @@
 </style>
 </head>
 <body>
+<div id="flowtaskVerification" class="flowtask-verify-overlay" aria-hidden="true">
+  <div class="flowtask-verify-card" role="status" aria-live="polite">
+    <div id="flowtaskVerifyChecking">
+      <div class="flowtask-verify-title">Zugriff wird überprüft</div>
+      <div class="flowtask-verify-sub">Deine Anmeldedaten werden sicher geprüft.</div>
+      <div class="flowtask-ring" id="flowtaskVerifyRing"><div class="flowtask-ring-inner" id="flowtaskVerifyValue">60</div></div>
+    </div>
+    <div id="flowtaskVerifySuccess" class="flowtask-verify-success">
+      <div class="flowtask-verify-title">Zugriff gewährt</div>
+      <div class="flowtask-success-sub">Willkommen zurück. Flowtask wird geladen...</div>
+      <div class="flowtask-check">✓</div>
+      <div class="flowtask-verified-badge">VERIFIED</div>
+    </div>
+  </div>
+</div>
+
 <div class="auth-screen" id="authScreen">
   <div class="auth-card">
     <div class="brand">flow<span>task</span></div>
@@ -376,6 +406,25 @@ async function refreshSharedState(){
   }catch(e){console.error('Gemeinsame Daten konnten nicht aktualisiert werden',e)}
   finally{applyingRemote=false;refreshInProgress=false}
 }
+
+async function showFlowtaskVerification(){
+  const overlay=$('flowtaskVerification'),checking=$('flowtaskVerifyChecking'),success=$('flowtaskVerifySuccess'),ring=$('flowtaskVerifyRing'),value=$('flowtaskVerifyValue');
+  if(!overlay)return;
+  checking.style.display='block';success.style.display='none';overlay.classList.add('open');overlay.setAttribute('aria-hidden','false');
+  const duration=1500,start=performance.now();
+  await new Promise(resolve=>{
+    const tick=now=>{
+      const p=Math.min(1,(now-start)/duration),deg=Math.round(p*360);
+      ring.style.background='conic-gradient(var(--accent) '+deg+'deg,rgba(101,88,232,.12) '+deg+'deg)';
+      value.textContent=Math.max(1,Math.round(60-(p*59)));
+      if(p<1)requestAnimationFrame(tick);else resolve();
+    };
+    requestAnimationFrame(tick);
+  });
+  value.textContent='✓';checking.style.display='none';success.style.display='flex';
+  await new Promise(r=>setTimeout(r,1050));
+  overlay.classList.remove('open');overlay.setAttribute('aria-hidden','true');
+}
 async function showApp(user){$('accountEmail').textContent=user.email;$('authScreen').style.display='none';$('app').style.display='grid';await loadCloudState(user);await claimFirstAdmin();await loadAdmin();idleMinutes=Number(data.settings?.idleMinutes||10);resetIdleTimer()}
 async function updateDeviceClass(){
   const mobile=window.matchMedia('(max-width:700px), (hover:none) and (pointer:coarse) and (max-width:900px)').matches;
@@ -399,7 +448,7 @@ function togglePersonalMenu(){const b=$('personalMenuToggle'),m=$('personalDropd
 async function requestPasswordReset(){closePersonalMenus();try{const email=(await sb.auth.getUser()).data.user?.email;if(!email)throw Error('Keine E-Mail-Adresse gefunden.');const r=await sb.auth.resetPasswordForEmail(email,{redirectTo:window.location.origin+window.location.pathname});if(r.error)throw r.error;toast('Passwort-Zurücksetzungs-Mail wurde angefordert')}catch(e){toast(e.message||'Zurücksetzen fehlgeschlagen')}}
 function openChangePassword(){closePersonalMenus();$('resetOverlay').classList.add('open')}
 $('personalMenuToggle').addEventListener('click',e=>{e.stopPropagation();togglePersonalMenu()});document.addEventListener('click',e=>{if(!e.target.closest('.personal-menu-wrap'))closePersonalMenus()});$('personalDropdown').addEventListener('click',async e=>{const b=e.target.closest('[data-personal-action]');if(!b)return;const a=b.dataset.personalAction;if(a==='settings')openSettingsMenu();else if(a==='change-password')openChangePassword();else if(a==='reset-password')requestPasswordReset();else if(a==='admin'){if(isAdmin)openAdmin();else closePersonalMenus()}else if(a==='logout'){closePersonalMenus();if(confirm('Wirklich abmelden?')){await sb.auth.signOut();location.reload()}}});
-$('authForm').addEventListener('submit',async e=>{e.preventDefault();$('authError').classList.remove('show');$('resendVerificationBtn').style.display='none';const email=$('authEmail').value.trim(),password=$('authPassword').value,workspacePassword=$('workspacePassword').value;try{const ok=await verifyWorkspacePassword(workspacePassword);if(!ok)throw new Error('Das gemeinsame Flowtask-Passwort ist falsch.');let r;if(authMode==='login') r=await sb.auth.signInWithPassword({email,password});else r=await sb.auth.signUp({email,password,options:{emailRedirectTo:window.location.origin+window.location.pathname}});if(r.error)throw r.error;if(authMode==='register'&&!r.data.session){$('authError').textContent='Registrierung angelegt. Bitte bestätige deine E-Mail. Falls keine Mail ankommt, kannst du sie erneut senden.';$('authError').classList.add('show');$('resendVerificationBtn').style.display='block';return}await logLogin(r.data.user);await showApp(r.data.user)}catch(err){$('authError').textContent=err.message;$('authError').classList.add('show');if(/confirm|verified|bestätig|verifiz/i.test(err.message))$('resendVerificationBtn').style.display='block'}});
+$('authForm').addEventListener('submit',async e=>{e.preventDefault();$('authError').classList.remove('show');$('resendVerificationBtn').style.display='none';const email=$('authEmail').value.trim(),password=$('authPassword').value,workspacePassword=$('workspacePassword').value;try{const ok=await verifyWorkspacePassword(workspacePassword);if(!ok)throw new Error('Das gemeinsame Flowtask-Passwort ist falsch.');let r;if(authMode==='login') r=await sb.auth.signInWithPassword({email,password});else r=await sb.auth.signUp({email,password,options:{emailRedirectTo:window.location.origin+window.location.pathname}});if(r.error)throw r.error;if(authMode==='register'&&!r.data.session){$('authError').textContent='Registrierung angelegt. Bitte bestätige deine E-Mail. Falls keine Mail ankommt, kannst du sie erneut senden.';$('authError').classList.add('show');$('resendVerificationBtn').style.display='block';return}await logLogin(r.data.user);await showFlowtaskVerification();await showApp(r.data.user)}catch(err){$('authError').textContent=err.message;$('authError').classList.add('show');if(/confirm|verified|bestätig|verifiz/i.test(err.message))$('resendVerificationBtn').style.display='block'}});
 $('resendVerificationBtn').onclick=async()=>{const email=$('authEmail').value.trim();if(!email){$('authError').textContent='Bitte zuerst deine E-Mail-Adresse eingeben.';$('authError').classList.add('show');return}try{const r=await sb.auth.resend({type:'signup',email,options:{emailRedirectTo:window.location.origin+window.location.pathname}});if(r.error)throw r.error;$('authError').textContent='Die Bestätigungs-Mail wurde erneut angefordert. Bitte auch den Spam-Ordner prüfen.';$('authError').classList.add('show')}catch(err){$('authError').textContent=err.message;$('authError').classList.add('show')}};
 $('forgotPasswordBtn').onclick=async()=>{const email=$('authEmail').value.trim();if(!email){$('authError').textContent='Bitte zuerst deine E-Mail-Adresse eingeben.';$('authError').classList.add('show');return}try{const r=await sb.auth.resetPasswordForEmail(email,{redirectTo:window.location.origin+window.location.pathname});if(r.error)throw r.error;$('authError').textContent='Eine Passwort-Zurücksetzungs-Mail wurde angefordert. Bitte Posteingang und Spam prüfen.';$('authError').classList.add('show')}catch(err){$('authError').textContent=err.message;$('authError').classList.add('show')}};
 if($('logoutBtn'))$('logoutBtn').onclick=async()=>{if(confirm('Wirklich abmelden?')){await sb.auth.signOut();location.reload()}};
